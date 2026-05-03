@@ -1,297 +1,713 @@
 import { useEffect, useRef, useState } from 'react';
-import { projects, type Project } from '../../data/projects';
+import { projects } from '../../data/projects';
+import { skillCategories } from '../../data/skills';
+import type { BossStats } from './BossGame';
 
 interface ExploreGameProps {
-  onExit: () => void;
+  onExit:    () => void;
+  bossStats: BossStats | null;
 }
 
-const PLANET_DEFS = [
-  { id: 'soulslike-boss',   rx: 0.25, ry: 0.32, label: 'Soulslike Boss',   color: '#38BDF8', radius: 38 },
-  { id: 'game-ai-research', rx: 0.75, ry: 0.58, label: 'Game AI Research',  color: '#A855F7', radius: 38 },
-  { id: 'portfolio-site',   rx: 0.5,  ry: 0.78, label: 'Portfolio Site',    color: '#22C55E', radius: 38 },
+type PlanetId = 'about' | 'works-0' | 'works-1' | 'works-2' | 'skills' | 'research' | 'contact';
+
+interface PlanetDef {
+  id: PlanetId; label: string; number: string;
+  color: string; wx: number; wy: number; radius: number; dim?: boolean;
+}
+
+interface Snippet { text: string; wx: number; wy: number; vx: number; vy: number; }
+
+const WORLD_W    = 3000;
+const WORLD_H    = 2000;
+const STAR_COUNT = 600;
+const APPROACH_D = 170;
+const MAX_SPEED  = 5;
+const FRICTION   = 0.92;
+const ACCEL      = 0.38;
+
+// Keys that should not propagate to background UI
+const GAME_KEYS = new Set([
+  'ArrowLeft','ArrowRight','ArrowUp','ArrowDown',
+  'KeyA','KeyS','KeyD','KeyW','Enter','Escape','Space',
+]);
+
+const PLANET_DEFS: PlanetDef[] = [
+  { id:'about',    label:'ABOUT',    number:'01', color:'#38BDF8', wx: 480, wy: 680, radius:70 },
+  { id:'research', label:'RESEARCH', number:'04', color:'#22C55E', wx: 560, wy:1380, radius:66 },
+  { id:'skills',   label:'SKILLS',   number:'03', color:'#A855F7', wx:1480, wy:1680, radius:62 },
+  { id:'works-0',  label:'PROJ.I',   number:'02', color:'#F97316', wx:2080, wy: 380, radius:46, dim:true },
+  { id:'works-1',  label:'PROJ.II',  number:'02', color:'#F97316', wx:2340, wy: 720, radius:62 },
+  { id:'works-2',  label:'PROJ.III', number:'02', color:'#F97316', wx:2580, wy:1060, radius:78 },
+  { id:'contact',  label:'CONTACT',  number:'05', color:'#EC4899', wx:2620, wy:1640, radius:56 },
 ];
 
-const STAR_COUNT  = 280;
-const DEBRIS_COUNT = 18;
-const APPROACH_DIST = 110;
-const MAX_SPEED = 4.5;
-const FRICTION  = 0.93;
-const ACCEL     = 0.35;
+const SECTION_TITLES: Partial<Record<PlanetId, string>> = {
+  about:'自己紹介', skills:'スキル', research:'研究・開発', contact:'お問い合わせ',
+};
 
-export function ExploreGame({ onExit }: ExploreGameProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [nearProject, setNearProject] = useState<Project | null>(null);
+const SKILL_COLORS: Record<string, string> = {
+  cyan:'#0EA5E9', purple:'#A855F7', green:'#16A34A', orange:'#EA580C',
+};
 
+const SHIP_COLORS      = ['#38BDF8', '#A855F7', '#FFD700'];
+const SHIP_NAMES       = ['CYAN', 'PURPLE', 'GOLD'];
+const SHIP_THRESHOLDS  = [0, 10, 30];
+
+const CODE_SNIPPETS = [
+  'animator.SetBool("isAttacking", true)',
+  'NavMesh.CalculatePath(target, path)',
+  'StartCoroutine(HitStop(0.08f))',
+  'useFrame((state) => { ... })',
+  'boss.barHp -= bullet.damage',
+  'Cinemachine.GenerateImpulse()',
+  'Physics.Raycast(origin, dir, out hit)',
+  'AudioSource.PlayOneShot(clip)',
+  'ctx.arc(x, y, r, 0, Math.PI * 2)',
+  'const [gameMode, setGameMode]',
+  'SetTrigger("Death")',
+  'agent.SetDestination(target.position)',
+  'Instantiate(prefab, pos, rot)',
+  'rb.AddForce(direction * force)',
+  'OnStateEnter(Animator anim, ...)',
+];
+
+export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
+  const canvasRef       = useRef<HTMLCanvasElement>(null);
+  const nearRef         = useRef<PlanetId | null>(null);
+  const landedRef       = useRef<PlanetId | null>(null);
+  const scanRef         = useRef<Partial<Record<PlanetId, number>>>({});
+  const scanCompleteRef = useRef(false);
+  const visitedRef      = useRef<Set<PlanetId>>(new Set());
+  const readyRef        = useRef(false); // ignore key events until fully mounted
+
+  const [nearPlanetId,   setNearPlanetId]   = useState<PlanetId | null>(null);
+  const [landedPlanetId, setLandedPlanetId] = useState<PlanetId | null>(null);
+  const [scanComplete,   setScanComplete]   = useState(false);
+  const [revealCount,    setRevealCount]    = useState(0);
+
+  const graze     = bossStats?.graze ?? 0;
+  const shipTier  = graze < SHIP_THRESHOLDS[1] ? 0 : graze < SHIP_THRESHOLDS[2] ? 1 : 2;
+  const shipColor = SHIP_COLORS[shipTier];
+  const speedMult = shipTier >= 2 ? 1.2 : 1.0;
+
+  const closeLanding = () => { landedRef.current = null; setLandedPlanetId(null); };
+
+  // Typing reveal
+  useEffect(() => {
+    if (!landedPlanetId) return;
+    setRevealCount(0);
+    const id = setInterval(() => setRevealCount(c => c + 1), 280);
+    return () => clearInterval(id);
+  }, [landedPlanetId]);
+
+  // ── Game loop ──────────────────────────────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let W = window.innerWidth;
-    let H = window.innerHeight;
-    canvas.width  = W;
-    canvas.height = H;
+    // Blur any focused background element to prevent key events triggering it
+    (document.activeElement as HTMLElement | null)?.blur();
 
-    const onResize = () => {
-      W = window.innerWidth;
-      H = window.innerHeight;
-      canvas.width  = W;
-      canvas.height = H;
-    };
+    // Delay input acceptance to avoid carried-over key presses
+    const readyTimer = setTimeout(() => { readyRef.current = true; }, 600);
+
+    let W = window.innerWidth, H = window.innerHeight;
+    canvas.width = W; canvas.height = H;
+    const onResize = () => { W=window.innerWidth; H=window.innerHeight; canvas.width=W; canvas.height=H; };
     window.addEventListener('resize', onResize);
 
-    // Stars (fixed positions, created once)
+    // Stars in world space
     const stars = Array.from({ length: STAR_COUNT }, () => ({
-      x: Math.random() * W,
-      y: Math.random() * H,
-      r: Math.random() * 1.4 + 0.2,
-      a: Math.random() * 0.7 + 0.15,
+      x: Math.random()*WORLD_W, y: Math.random()*WORLD_H,
+      r: Math.random()*1.4+0.2, a: Math.random()*0.7+0.15,
     }));
 
-    // Debris — drifting remnants from the boss
-    const debris = Array.from({ length: DEBRIS_COUNT }, () => ({
-      x: Math.random() * W,
-      y: Math.random() * H,
-      vx: (Math.random() - 0.5) * 0.25,
-      vy: (Math.random() - 0.5) * 0.25,
-      r: Math.random() * 2.5 + 0.8,
-      color: Math.random() > 0.5 ? '#38BDF8' : '#A855F7',
-      a: Math.random() * 0.5 + 0.15,
-    }));
+    // Shooting-star code snippets (diagonal, with trail)
+    const snippets: Snippet[] = CODE_SNIPPETS.map(text => {
+      const spd   = 1.6 + Math.random() * 2.2;
+      const angle = Math.PI * 0.38 + (Math.random() - 0.5) * 0.28; // ~55-75° from horizontal
+      return {
+        text,
+        wx: Math.random() * WORLD_W,
+        wy: Math.random() * WORLD_H,
+        vx: Math.cos(angle) * spd,
+        vy: Math.sin(angle) * spd,
+      };
+    });
 
-    // Player state
-    const player = { x: W / 2, y: H / 2, vx: 0, vy: 0, angle: -Math.PI / 2 };
+    const player = { x: WORLD_W/2, y: WORLD_H/2, vx:0, vy:0, angle:-Math.PI/2 };
+    const cam    = { x: WORLD_W/2, y: WORLD_H/2 };
     const keys: Record<string, boolean> = {};
+    const sm = speedMult;
 
     const onKeyDown = (e: KeyboardEvent) => {
+      if (GAME_KEYS.has(e.code)) e.preventDefault();
+      if (!readyRef.current) return;
       keys[e.code] = true;
-      if (e.code === 'Escape') onExit();
+      if (e.code === 'Escape') {
+        if (landedRef.current) { landedRef.current=null; setLandedPlanetId(null); }
+        else onExit();
+        return;
+      }
+      if (e.code === 'Enter' && nearRef.current && !landedRef.current) {
+        if ((scanRef.current[nearRef.current] ?? 0) >= 1) {
+          const id = nearRef.current;
+          landedRef.current = id;
+          visitedRef.current.add(id);
+          setLandedPlanetId(id);
+        }
+      }
     };
     const onKeyUp = (e: KeyboardEvent) => { keys[e.code] = false; };
     window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
+    window.addEventListener('keyup',   onKeyUp);
 
     let rafId: number;
-    let prevNearId: string | null = null;
 
     const loop = (now: number) => {
+      const t = now / 1000;
 
-      // Player input
-      const left  = keys['ArrowLeft']  || keys['KeyA'];
-      const right = keys['ArrowRight'] || keys['KeyD'];
-      const up    = keys['ArrowUp']    || keys['KeyW'];
-      const down  = keys['ArrowDown']  || keys['KeyS'];
-
-      if (left)  player.vx -= ACCEL;
-      if (right) player.vx += ACCEL;
-      if (up)    player.vy -= ACCEL;
-      if (down)  player.vy += ACCEL;
-
-      const spd = Math.hypot(player.vx, player.vy);
-      if (spd > MAX_SPEED) {
-        player.vx = (player.vx / spd) * MAX_SPEED;
-        player.vy = (player.vy / spd) * MAX_SPEED;
-      }
-      player.vx *= FRICTION;
-      player.vy *= FRICTION;
-
-      player.x = ((player.x + player.vx) % W + W) % W;
-      player.y = ((player.y + player.vy) % H + H) % H;
-
-      if (spd > 0.15) {
-        player.angle = Math.atan2(player.vy, player.vx) + Math.PI / 2;
+      // Movement
+      if (!landedRef.current) {
+        if (keys['ArrowLeft']  || keys['KeyA']) player.vx -= ACCEL*sm;
+        if (keys['ArrowRight'] || keys['KeyD']) player.vx += ACCEL*sm;
+        if (keys['ArrowUp']    || keys['KeyW']) player.vy -= ACCEL*sm;
+        if (keys['ArrowDown']  || keys['KeyS']) player.vy += ACCEL*sm;
+        const spd    = Math.hypot(player.vx, player.vy);
+        const maxSpd = MAX_SPEED*sm;
+        if (spd > maxSpd) { player.vx=(player.vx/spd)*maxSpd; player.vy=(player.vy/spd)*maxSpd; }
+        player.vx *= FRICTION; player.vy *= FRICTION;
+        player.x = Math.max(50, Math.min(WORLD_W-50, player.x+player.vx));
+        player.y = Math.max(50, Math.min(WORLD_H-50, player.y+player.vy));
+        if (Math.hypot(player.vx, player.vy) > 0.15)
+          player.angle = Math.atan2(player.vy, player.vx) + Math.PI/2;
       }
 
-      // Debris drift
-      debris.forEach((d) => {
-        d.x = ((d.x + d.vx) % W + W) % W;
-        d.y = ((d.y + d.vy) % H + H) % H;
+      // Camera
+      cam.x += (player.x - cam.x) * 0.08;
+      cam.y += (player.y - cam.y) * 0.08;
+      if (WORLD_W > W) cam.x = Math.max(W/2, Math.min(WORLD_W-W/2, cam.x)); else cam.x = WORLD_W/2;
+      if (WORLD_H > H) cam.y = Math.max(H/2, Math.min(WORLD_H-H/2, cam.y)); else cam.y = WORLD_H/2;
+
+      // Snippet shooting-star movement
+      snippets.forEach(s => {
+        s.wx += s.vx; s.wy += s.vy;
+        if (s.wy > WORLD_H+80 || s.wx > WORLD_W+300 || s.wx < -300) {
+          s.wy = -50; s.wx = Math.random() * WORLD_W;
+        }
       });
 
-      // ── Draw ──
-      ctx.fillStyle = '#04080f';
-      ctx.fillRect(0, 0, W, H);
+      // Proximity & scan
+      if (!landedRef.current) {
+        let newNear: PlanetId | null = null;
+        for (const p of PLANET_DEFS) {
+          if (Math.hypot(player.x-p.wx, player.y-p.wy) < APPROACH_D) { newNear=p.id; break; }
+        }
+        if (newNear) {
+          const prev = scanRef.current[newNear] ?? 0;
+          const next = Math.min(1, prev + 0.008);
+          scanRef.current[newNear] = next;
+          if (!scanCompleteRef.current && next >= 1) {
+            scanCompleteRef.current = true; setScanComplete(true);
+          }
+        }
+        if (newNear !== nearRef.current) {
+          nearRef.current = newNear; setNearPlanetId(newNear);
+          const done = newNear ? (scanRef.current[newNear]??0) >= 1 : false;
+          scanCompleteRef.current = done; setScanComplete(done);
+        }
+      }
+
+      // ── Draw ──────────────────────────────────────────────────────
+      ctx.fillStyle='#04080f'; ctx.fillRect(0,0,W,H);
+
+      ctx.save();
+      ctx.translate(W/2 - cam.x, H/2 - cam.y);
 
       // Stars
-      stars.forEach((s) => {
-        ctx.globalAlpha = s.a;
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-        ctx.fill();
+      stars.forEach(s => {
+        ctx.globalAlpha=s.a; ctx.fillStyle='#ffffff';
+        ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
       });
-      ctx.globalAlpha = 1;
+      ctx.globalAlpha=1;
 
-      // Debris glow
-      debris.forEach((d) => {
-        ctx.globalAlpha = d.a;
-        ctx.shadowColor = d.color;
-        ctx.shadowBlur = 8;
-        ctx.fillStyle = d.color;
-        ctx.beginPath();
-        ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
+      // Works timeline connector
+      const wNodes = PLANET_DEFS.filter(p => p.id.startsWith('works'));
+      ctx.strokeStyle='#F9731660'; ctx.lineWidth=2; ctx.setLineDash([8,10]);
+      ctx.beginPath();
+      wNodes.forEach((p,i) => i===0?ctx.moveTo(p.wx,p.wy):ctx.lineTo(p.wx,p.wy));
+      ctx.stroke(); ctx.setLineDash([]);
+
+      // Shooting-star code snippets
+      snippets.forEach(s => {
+        const dist  = Math.hypot(s.wx-player.x, s.wy-player.y);
+        const close = dist < 280;
+        const alpha = close ? 0.92 : 0.62;
+        const spd   = Math.hypot(s.vx, s.vy) || 1;
+        const nx = s.vx/spd, ny = s.vy/spd;
+        const tLen  = 55;
+
+        // Gradient trail
+        const grd = ctx.createLinearGradient(s.wx, s.wy, s.wx-nx*tLen, s.wy-ny*tLen);
+        grd.addColorStop(0, `rgba(56,189,248,${alpha})`);
+        grd.addColorStop(1, 'rgba(56,189,248,0)');
+        ctx.strokeStyle=grd; ctx.lineWidth=close?2:1.2;
+        ctx.shadowColor='#38BDF8'; ctx.shadowBlur=close?12:5;
+        ctx.beginPath(); ctx.moveTo(s.wx,s.wy); ctx.lineTo(s.wx-nx*tLen, s.wy-ny*tLen); ctx.stroke();
+        ctx.shadowBlur=0;
+
+        // Text at head
+        ctx.globalAlpha=alpha*0.95;
+        ctx.font='10px monospace'; ctx.fillStyle='#38BDF8';
+        ctx.fillText(s.text, s.wx+3, s.wy-2);
+        ctx.globalAlpha=1;
       });
-      ctx.globalAlpha = 1;
 
       // Planets
-      const t = now / 1000;
-      PLANET_DEFS.forEach((p) => {
-        const px = p.rx * W;
-        const py = p.ry * H;
-        const pulse = 1 + Math.sin(t * 1.4) * 0.12;
+      PLANET_DEFS.forEach(p => {
+        const isNear  = nearRef.current===p.id;
+        const scan    = scanRef.current[p.id]??0;
+        const visited = visitedRef.current.has(p.id);
+        const baseA   = p.dim ? 0.62 : 1.0;
+        const pulse   = 1+Math.sin(t*1.4)*0.07;
 
-        // Outer glow
-        const grad = ctx.createRadialGradient(px, py, p.radius * 0.6, px, py, p.radius * 2.8 * pulse);
-        grad.addColorStop(0, p.color + '55');
-        grad.addColorStop(1, 'transparent');
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(px, py, p.radius * 2.8 * pulse, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.globalAlpha=baseA;
+
+        // Glow
+        const gr=ctx.createRadialGradient(p.wx,p.wy,p.radius*.5,p.wx,p.wy,p.radius*3.2*pulse);
+        gr.addColorStop(0,p.color+'44'); gr.addColorStop(1,'transparent');
+        ctx.fillStyle=gr; ctx.beginPath(); ctx.arc(p.wx,p.wy,p.radius*3.2*pulse,0,Math.PI*2); ctx.fill();
+
+        // Decorations
+        ctx.save(); ctx.translate(p.wx,p.wy);
+        if (p.id==='about') {
+          ctx.save(); ctx.rotate(t*.4);
+          ctx.strokeStyle=p.color+'55'; ctx.lineWidth=1.5;
+          ctx.beginPath(); ctx.ellipse(0,0,p.radius*1.7,p.radius*.28,0,0,Math.PI*2); ctx.stroke();
+          ctx.restore();
+        } else if (p.id.startsWith('works')) {
+          const wi=+p.id.slice(-1), or=p.radius*(1.5+wi*.14);
+          ctx.strokeStyle=p.color+'40'; ctx.lineWidth=1;
+          ctx.beginPath(); ctx.arc(0,0,or,0,Math.PI*2); ctx.stroke();
+          const sa=t*(.45-wi*.08);
+          ctx.shadowColor=p.color; ctx.shadowBlur=6; ctx.fillStyle=p.color+'CC';
+          ctx.beginPath(); ctx.arc(Math.cos(sa)*or,Math.sin(sa)*or,2.5,0,Math.PI*2); ctx.fill();
+          ctx.shadowBlur=0;
+        } else if (p.id==='skills') {
+          ctx.strokeStyle=p.color+'28'; ctx.lineWidth=1;
+          ctx.beginPath(); ctx.arc(0,0,p.radius*1.6,0,Math.PI*2); ctx.stroke();
+          for (let i=0;i<6;i++){
+            const ha=(i/6)*Math.PI*2+t*.22;
+            ctx.fillStyle=p.color+'66';
+            ctx.beginPath(); ctx.arc(Math.cos(ha)*p.radius*1.6,Math.sin(ha)*p.radius*1.6,2,0,Math.PI*2); ctx.fill();
+          }
+        } else if (p.id==='research') {
+          ctx.strokeStyle=p.color+'40'; ctx.lineWidth=1; ctx.setLineDash([5,6]);
+          ctx.beginPath(); ctx.arc(0,0,p.radius*1.85,0,Math.PI*2); ctx.stroke(); ctx.setLineDash([]);
+          const sa=t*.22; ctx.shadowColor=p.color; ctx.shadowBlur=8; ctx.fillStyle=p.color;
+          ctx.beginPath(); ctx.arc(Math.cos(sa)*p.radius*1.85,Math.sin(sa)*p.radius*1.85,3,0,Math.PI*2); ctx.fill();
+          ctx.shadowBlur=0;
+        } else if (p.id==='contact') {
+          for (let ri=0;ri<3;ri++){
+            const ph=((t*.55+ri*.333)%1);
+            ctx.globalAlpha=baseA*(1-ph)*.38;
+            ctx.strokeStyle=p.color; ctx.lineWidth=1.5;
+            ctx.beginPath(); ctx.arc(0,0,p.radius*(1.1+ph*2),0,Math.PI*2); ctx.stroke();
+          }
+          ctx.globalAlpha=baseA;
+        }
+        ctx.restore();
 
         // Body
-        ctx.shadowColor = p.color;
-        ctx.shadowBlur = 24;
-        ctx.fillStyle = p.color + '30';
-        ctx.strokeStyle = p.color;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(px, py, p.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.shadowBlur = 0;
+        ctx.shadowColor=p.color; ctx.shadowBlur=isNear?44:24;
+        ctx.fillStyle=p.color+'28'; ctx.strokeStyle=p.color;
+        ctx.lineWidth=isNear?3.5:visited?2.5:2;
+        ctx.beginPath(); ctx.arc(p.wx,p.wy,p.radius,0,Math.PI*2); ctx.fill(); ctx.stroke();
+        if (visited) {
+          ctx.strokeStyle=p.color+'60'; ctx.lineWidth=1;
+          ctx.beginPath(); ctx.arc(p.wx,p.wy,p.radius+9,0,Math.PI*2); ctx.stroke();
+        }
+        ctx.shadowBlur=0;
+
+        // Scan bar
+        if (scan>0 && scan<1 && isNear) {
+          const bw=90, bh=5, bx=p.wx-bw/2, by=p.wy+p.radius+30;
+          ctx.fillStyle='#ffffff15'; ctx.fillRect(bx,by,bw,bh);
+          ctx.fillStyle=p.color; ctx.shadowColor=p.color; ctx.shadowBlur=8;
+          ctx.fillRect(bx,by,bw*scan,bh); ctx.shadowBlur=0;
+          ctx.font='9px monospace'; ctx.fillStyle=p.color+'CC';
+          ctx.textAlign='center'; ctx.globalAlpha=.8;
+          ctx.fillText('SCANNING...', p.wx, by+17); ctx.globalAlpha=baseA;
+        }
+
+        // Blinking ring
+        if (scan>=1 && isNear) {
+          const blink=.55+.45*Math.sin(t*7);
+          ctx.globalAlpha=baseA*(.35+blink*.5);
+          ctx.strokeStyle=p.color; ctx.lineWidth=1.5; ctx.setLineDash([6,4]);
+          ctx.beginPath(); ctx.arc(p.wx,p.wy,p.radius+16+Math.sin(t*4)*3,0,Math.PI*2); ctx.stroke();
+          ctx.setLineDash([]);
+        }
+        ctx.globalAlpha=1;
 
         // Label
-        ctx.font = '11px monospace';
-        ctx.fillStyle = 'rgba(255,255,255,0.65)';
-        ctx.textAlign = 'center';
-        ctx.fillText(p.label, px, py + p.radius + 18);
+        const labelY = p.wy + ((scan>0&&scan<1&&isNear) ? p.radius+50 : p.radius+26);
+        ctx.font=`${p.dim?'10':'11'}px monospace`;
+        ctx.fillStyle=visited ? p.color+'CC' : 'rgba(255,255,255,0.72)';
+        ctx.textAlign='center';
+        ctx.fillText(`// ${p.number}.${p.label.toLowerCase()}`, p.wx, labelY);
+        ctx.textAlign='left';
       });
-
-      // Proximity check
-      let newNearId: string | null = null;
-      PLANET_DEFS.forEach((p) => {
-        const dx = player.x - p.rx * W;
-        const dy = player.y - p.ry * H;
-        if (Math.hypot(dx, dy) < APPROACH_DIST) newNearId = p.id;
-      });
-      if (newNearId !== prevNearId) {
-        prevNearId = newNearId;
-        setNearProject(newNearId ? (projects.find((pr) => pr.id === newNearId) ?? null) : null);
-      }
 
       // Player ship
-      ctx.save();
-      ctx.translate(player.x, player.y);
-      ctx.rotate(player.angle);
-      ctx.shadowColor = '#38BDF8';
-      ctx.shadowBlur = 18;
-      ctx.fillStyle = '#38BDF8';
-      ctx.strokeStyle = 'rgba(255,255,255,0.9)';
-      ctx.lineWidth = 1;
+      if (!landedRef.current) {
+        const sc=shipColor;
+        ctx.save(); ctx.translate(player.x,player.y); ctx.rotate(player.angle);
+        ctx.shadowColor=sc; ctx.shadowBlur=20;
+        ctx.fillStyle=sc; ctx.strokeStyle='rgba(255,255,255,0.9)'; ctx.lineWidth=1;
+        ctx.beginPath(); ctx.moveTo(0,-14); ctx.lineTo(-8,10); ctx.lineTo(0,5); ctx.lineTo(8,10);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.shadowColor='#ffffff55'; ctx.fillStyle='#ffffff80';
+        ctx.beginPath(); ctx.arc(0,7,2.5,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=0; ctx.restore();
+      }
+
+      ctx.restore(); // end world transform
+
+      // ── Minimap (screen space) ──────────────────────────────────
+      const MM_W=162, MM_H=104, MM_X=W-MM_W-14, MM_Y=H-MM_H-14;
+      const mmSX=MM_W/WORLD_W, mmSY=MM_H/WORLD_H;
+      ctx.fillStyle='rgba(4,8,15,0.78)'; ctx.fillRect(MM_X,MM_Y,MM_W,MM_H);
+      ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.lineWidth=1; ctx.strokeRect(MM_X,MM_Y,MM_W,MM_H);
+      ctx.strokeStyle='#F9731638'; ctx.lineWidth=.8; ctx.setLineDash([3,5]);
       ctx.beginPath();
-      ctx.moveTo(0, -14);
-      ctx.lineTo(-8,  10);
-      ctx.lineTo( 0,   5);
-      ctx.lineTo( 8,  10);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-      // Engine glow
-      ctx.shadowColor = '#A855F7';
-      ctx.fillStyle = '#A855F7';
-      ctx.beginPath();
-      ctx.arc(0, 7, 2.5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-      ctx.restore();
+      wNodes.forEach((p,i)=>{
+        i===0?ctx.moveTo(MM_X+p.wx*mmSX,MM_Y+p.wy*mmSY):ctx.lineTo(MM_X+p.wx*mmSX,MM_Y+p.wy*mmSY);
+      });
+      ctx.stroke(); ctx.setLineDash([]);
+      PLANET_DEFS.forEach(p=>{
+        const mx=MM_X+p.wx*mmSX, my=MM_Y+p.wy*mmSY;
+        const vis=visitedRef.current.has(p.id);
+        ctx.globalAlpha=vis?.92:.30; ctx.fillStyle=p.color;
+        if (vis){ctx.shadowColor=p.color; ctx.shadowBlur=5;}
+        ctx.beginPath(); ctx.arc(mx,my,vis?3.5:2.2,0,Math.PI*2); ctx.fill();
+        ctx.shadowBlur=0;
+      });
+      ctx.globalAlpha=1;
+      const pmx=MM_X+player.x*mmSX, pmy=MM_Y+player.y*mmSY;
+      ctx.fillStyle='#ffffff'; ctx.shadowColor='#ffffff'; ctx.shadowBlur=7;
+      ctx.beginPath(); ctx.arc(pmx,pmy,2.5,0,Math.PI*2); ctx.fill();
+      ctx.shadowBlur=0;
+      ctx.font='8px monospace'; ctx.fillStyle='rgba(255,255,255,0.28)';
+      ctx.fillText('STAR MAP', MM_X+4, MM_Y+10);
 
       rafId = requestAnimationFrame(loop);
-
     };
 
     rafId = requestAnimationFrame(loop);
-
     return () => {
       cancelAnimationFrame(rafId);
+      clearTimeout(readyTimer);
       window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('keyup', onKeyUp);
-      window.removeEventListener('resize', onResize);
+      window.removeEventListener('keyup',   onKeyUp);
+      window.removeEventListener('resize',  onResize);
     };
-  }, [onExit]);
+  }, [onExit, shipColor, speedMult]);
 
-  const near = nearProject;
+  // ── Panel helpers ────────────────────────────────────────────────
+  const landedDef  = PLANET_DEFS.find(p => p.id===landedPlanetId);
+  const worksIdx   = landedPlanetId?.startsWith('works') ? +landedPlanetId.slice(-1) : -1;
+  const project    = worksIdx>=0 ? projects[worksIdx]??null : null;
+  const panelTitle = project ? project.title : (landedPlanetId ? SECTION_TITLES[landedPlanetId]??'' : '');
+  const panelNum   = landedDef ? (worksIdx>=0 ? `02-${['I','II','III'][worksIdx]}` : landedDef.number) : '';
+
+  const formatTime = (frames: number) => {
+    const s=Math.floor(frames/60), m=Math.floor(s/60);
+    return m>0 ? `${m}:${String(s%60).padStart(2,'0')}` : `${s}s`;
+  };
+  const starRating = (g: number) => {
+    const n=g<5?1:g<15?2:g<30?3:g<60?4:5;
+    return '★'.repeat(n)+'☆'.repeat(5-n);
+  };
+  const show = (i: number) => i < revealCount;
 
   return (
-    <div className="fixed inset-0 z-50" style={{ background: '#04080f' }}>
-      <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: '100%' }} />
+    <div className="fixed inset-0 z-50" style={{ background:'#04080f' }}>
+      <canvas ref={canvasRef} style={{ display:'block', width:'100%', height:'100%' }} />
 
       {/* Top hint */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 pointer-events-none">
-        <div className="text-[10px] font-mono text-[#38BDF8]/60 bg-black/40 px-4 py-1.5 rounded-full tracking-wider">
-          WASD / ↑↓←→ で移動　惑星に接近するとプロジェクト情報が表示される
+      {!landedPlanetId && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 pointer-events-none">
+          <div className="text-[10px] font-mono text-[#38BDF8]/60 bg-black/40 px-4 py-1.5 rounded-full tracking-wider">
+            WASD / ↑↓←→ で移動　惑星に近づいてスキャン → ENTER で着陸
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Exit */}
-      <button
-        onClick={onExit}
-        className="absolute top-4 right-4 text-[10px] font-mono text-[#94A3B8] hover:text-white transition-colors px-3 py-1.5 border border-white/20 rounded bg-black/50"
-      >
-        ポートフォリオに戻る [ESC]
-      </button>
+      {!landedPlanetId && (
+        <button onClick={onExit}
+          className="absolute top-4 right-4 text-[10px] font-mono text-[#CBD5E1] hover:text-white transition-colors px-3 py-1.5 border border-white/20 rounded bg-black/50">
+          ポートフォリオに戻る [ESC]
+        </button>
+      )}
 
-      {/* Project panel */}
-      {near && (
-        <div
-          key={near.id}
-          className="absolute bottom-0 left-0 right-0"
-          style={{
-            background: 'linear-gradient(to top, rgba(4,8,15,0.97) 70%, transparent)',
-            animation: 'panelSlideUp 0.3s ease-out',
-            padding: '2rem 1.5rem 1.5rem',
-          }}
-        >
-          <div className="max-w-xl mx-auto">
-            <div className="text-[10px] font-mono text-[#38BDF8] mb-1 tracking-widest">// PLANET DISCOVERED</div>
-            <div className="text-lg font-bold text-white mb-1">{near.title}</div>
-            <div className="text-[#94A3B8] text-sm leading-relaxed mb-3">{near.description}</div>
-            <div className="flex flex-wrap gap-1.5 mb-3">
-              {near.tech.map((t) => (
-                <span
-                  key={t}
-                  className="text-[10px] px-2 py-0.5 rounded font-mono"
-                  style={{ background: '#38BDF820', color: '#38BDF8', border: '1px solid #38BDF840' }}
-                >
-                  {t}
-                </span>
-              ))}
-            </div>
-            <div className="flex gap-4">
-              {near.githubUrl && near.githubUrl.length > 0 && (
-                <a href={near.githubUrl} target="_blank" rel="noopener noreferrer"
-                   className="text-xs font-mono text-[#38BDF8] hover:underline">
-                  GitHub ↗
-                </a>
-              )}
-              {near.demoUrl && near.demoUrl.length > 0 && (
-                <a href={near.demoUrl} target="_blank" rel="noopener noreferrer"
-                   className="text-xs font-mono text-[#A855F7] hover:underline">
-                  Demo ↗
-                </a>
+      {/* Pilot status overlay */}
+      {bossStats && !landedPlanetId && (
+        <div className="absolute top-14 left-4 font-mono bg-black/60 border border-white/10 rounded-xl px-4 py-3"
+          style={{ borderColor: shipColor+'25' }}>
+          <div className="text-[9px] tracking-widest mb-2" style={{ color: shipColor }}>
+            PILOT STATUS
+          </div>
+          <div className="flex items-start gap-4">
+            <svg width="14" height="20" viewBox="-8 -14 16 26" className="mt-0.5 shrink-0">
+              <polygon points="0,-14 -8,10 0,5 8,10" fill={shipColor} stroke="white" strokeWidth="0.8"/>
+            </svg>
+            <div className="text-[10px] space-y-1 text-[#94A3B8]">
+              <div>
+                <span style={{ color: shipColor }}>{SHIP_NAMES[shipTier]}</span>
+                {shipTier>=2 && <span className="text-[#FFD70099] ml-1">+SPD</span>}
+              </div>
+              <div>GRAZE&nbsp;<span className="text-white">{bossStats.graze}</span>
+                &nbsp;·&nbsp;{starRating(bossStats.graze)}</div>
+              <div>TIME&nbsp;<span className="text-white">{formatTime(bossStats.clearFrames)}</span>
+                &nbsp;·&nbsp;BOMB&nbsp;<span className="text-white">{bossStats.bombsUsed}</span></div>
+              {shipTier<2 && (
+                <div className="text-[#334155]">
+                  {shipTier===0 ? `${10-bossStats.graze}G → PURPLE` : `${30-bossStats.graze}G → GOLD`}
+                </div>
               )}
             </div>
           </div>
         </div>
       )}
 
+      {/* Approach hint */}
+      {nearPlanetId && !landedPlanetId && scanComplete && (() => {
+        const def=PLANET_DEFS.find(p=>p.id===nearPlanetId)!;
+        return (
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 pointer-events-none"
+            style={{ animation:'explFadeIn .2s ease-out' }}>
+            <div className="text-xs font-mono px-5 py-2 rounded-full border"
+              style={{ color:def.color, borderColor:def.color+'55', background:'#04080fCC' }}>
+              [ENTER]&nbsp;&nbsp;{def.label} に着陸
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Landing panel */}
+      {landedPlanetId && landedDef && (
+        <div className="fixed inset-0 flex items-center justify-center"
+          style={{ zIndex:60, background:'rgba(4,8,15,0.90)',
+                   backdropFilter:'blur(8px)', WebkitBackdropFilter:'blur(8px)',
+                   animation:'explFadeIn .25s ease-out' }}>
+          <div className="relative w-full max-w-4xl mx-4 rounded-2xl border p-10 overflow-y-auto"
+            style={{ maxHeight:'90vh', borderColor:landedDef.color+'40',
+                     background:'#080f1a', boxShadow:`0 0 80px ${landedDef.color}20` }}>
+
+            <div className="text-[10px] font-mono mb-1 tracking-widest" style={{ color:landedDef.color }}>
+              // {panelNum}.{landedDef.label.toLowerCase()}
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-6">{panelTitle}</h2>
+
+            {/* ABOUT */}
+            {landedPlanetId==='about' && (
+              <div className="space-y-5">
+                {show(0) && (
+                  <div className="rounded-xl border border-white/10 p-4 font-mono text-xs space-y-2 bg-white/5"
+                    style={{ animation:'explFadeIn .3s ease-out' }}>
+                    {([
+                      ['ROLE',  'ゲームクライアントエンジニア / Unity開発者'],
+                      ['FOCUS', 'ゲームプレイシステム・AI・アニメーション'],
+                      ['ENGINE','Unity (C#)'],
+                      ['STATUS','インターン・就職機会を探しています'],
+                    ] as [string,string][]).map(([k,v]) => (
+                      <div key={k} className="flex gap-4">
+                        <span className="w-16 shrink-0" style={{ color:landedDef.color }}>{k}</span>
+                        <span className="text-[#CBD5E1]">{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {show(1) && (
+                  <p className="text-[#CBD5E1] text-sm leading-relaxed"
+                    style={{ animation:'explFadeIn .3s ease-out' }}>
+                    主にUnityとC#を使用してゲームプレイプロトタイプを開発しており、戦闘システム・プレイヤー制御・敵AI・アニメーション制御・フィードバック設計に取り組んでいます。
+                    正しく動作するだけでなく、操作していて気持ちいいと感じられるゲーム体験の構築を目指しています。
+                  </p>
+                )}
+                <div className="grid grid-cols-2 gap-3">
+                  {([
+                    { icon:'🎮', label:'ゲーム開発',        desc:'戦闘・AI・ゲームフィールに注力したUnityプロトタイプ開発' },
+                    { icon:'🤖', label:'AI・アニメーション', desc:'敵キャラクターの行動・ステートマシン・フィードバック実装' },
+                    { icon:'🔊', label:'サウンド・表現',     desc:'音響統合とインタラクティブな感情表現設計' },
+                    { icon:'🌐', label:'Web・ツール',        desc:'React・TypeScript・Three.jsを用いたUI開発' },
+                  ]).map((h,i) => show(2+i) && (
+                    <div key={h.label} className="rounded-lg border border-white/10 p-3 bg-white/5"
+                      style={{ animation:'explFadeIn .3s ease-out' }}>
+                      <div className="text-xl mb-1">{h.icon}</div>
+                      <div className="text-xs font-semibold text-white mb-1">{h.label}</div>
+                      <div className="text-[#94A3B8] text-xs leading-relaxed">{h.desc}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* WORKS */}
+            {project && (
+              <div className="space-y-4">
+                {show(0) && (
+                  <div className="flex items-center gap-2 text-[10px] font-mono"
+                    style={{ animation:'explFadeIn .3s ease-out' }}>
+                    <span style={{ color:landedDef.color }}>PROJECT {['I','II','III'][worksIdx]}</span>
+                    <span className="text-[#334155]">/ 3</span>
+                    <div className="h-px flex-1 bg-white/10" />
+                    <span className="text-[#94A3B8]">{worksIdx===0?'最初期':worksIdx===1?'中期':'最新'}</span>
+                  </div>
+                )}
+                {show(1) && (
+                  <p className="text-[#CBD5E1] text-sm leading-relaxed"
+                    style={{ animation:'explFadeIn .3s ease-out' }}>{project.description}</p>
+                )}
+                {show(2) && (
+                  <div className="flex flex-wrap gap-1.5" style={{ animation:'explFadeIn .3s ease-out' }}>
+                    {project.tech.map(tech => (
+                      <span key={tech} className="text-[10px] px-2 py-0.5 rounded font-mono"
+                        style={{ background:landedDef.color+'18', color:landedDef.color,
+                                 border:`1px solid ${landedDef.color}40` }}>{tech}</span>
+                    ))}
+                  </div>
+                )}
+                {show(3) && (project.githubUrl||project.demoUrl) && (
+                  <div className="flex gap-4" style={{ animation:'explFadeIn .3s ease-out' }}>
+                    {project.githubUrl&&project.githubUrl.length>0 && (
+                      <a href={project.githubUrl} target="_blank" rel="noopener noreferrer"
+                        className="text-xs font-mono hover:underline" style={{ color:landedDef.color }}>GitHub ↗</a>
+                    )}
+                    {project.demoUrl&&project.demoUrl.length>0 && (
+                      <a href={project.demoUrl} target="_blank" rel="noopener noreferrer"
+                        className="text-xs font-mono text-[#A855F7] hover:underline">Demo ↗</a>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* SKILLS */}
+            {landedPlanetId==='skills' && (
+              <div className="grid grid-cols-2 gap-4">
+                {skillCategories.map((cat,i) => show(i) && (
+                  <div key={cat.category} className="rounded-xl border border-white/10 p-4 bg-white/5"
+                    style={{ animation:'explFadeIn .3s ease-out' }}>
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-1 h-3 rounded-full" style={{ background:SKILL_COLORS[cat.color] }} />
+                      <span className="text-xs font-mono font-semibold" style={{ color:SKILL_COLORS[cat.color] }}>
+                        {cat.category}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {cat.skills.map(s => (
+                        <span key={s} className="text-[10px] px-2 py-0.5 rounded font-mono"
+                          style={{ background:SKILL_COLORS[cat.color]+'18', color:SKILL_COLORS[cat.color],
+                                   border:`1px solid ${SKILL_COLORS[cat.color]}40` }}>{s}</span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* RESEARCH */}
+            {landedPlanetId==='research' && (
+              <div className="space-y-4">
+                {show(0) && (
+                  <div className="rounded-xl border border-white/10 p-4 bg-white/5 text-[#CBD5E1] text-sm leading-relaxed"
+                    style={{ animation:'explFadeIn .3s ease-out' }}>
+                    現在は<span className="text-[#38BDF8] font-semibold">ゲームAI研究を目的とした3Dアクションゲームプロトタイプ</span>の開発に取り組んでいます。
+                    今後は<span className="text-[#A855F7] font-semibold">機械学習やアダプティブAIの統合</span>も視野に入れています。
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-3">
+                  {([
+                    { icon:'⚔️', title:'ゲームプレイシステム', color:'#0EA5E9', desc:'戦闘メカニクス・プレイヤーアクション・スタミナシステム・ステートマシンの設計と実装。' },
+                    { icon:'🤖', title:'敵AI・行動設計',       color:'#A855F7', desc:'NavMesh・ビヘイビアツリー・状態遷移を活用した、動的でリアクティブなボスAIの構築。' },
+                    { icon:'🎬', title:'アニメーション・FB',   color:'#16A34A', desc:'アニメーションブレンド・ヒットストップ・カメラシェイク・VFXトリガーの実装。' },
+                    { icon:'🔊', title:'サウンド・感情表現',   color:'#EA580C', desc:'アダプティブオーディオ・BGM遷移・サウンド主導のフィードバックで感情に響くゲームプレイを実現。' },
+                  ]).map((a,i) => show(1+i) && (
+                    <div key={a.title} className="rounded-lg border border-white/10 p-3 bg-white/5"
+                      style={{ animation:'explFadeIn .3s ease-out' }}>
+                      <div className="flex items-start gap-2">
+                        <span className="text-lg">{a.icon}</span>
+                        <div>
+                          <div className="text-xs font-semibold mb-1" style={{ color:a.color }}>{a.title}</div>
+                          <div className="text-[#94A3B8] text-xs leading-relaxed">{a.desc}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {show(5) && (
+                  <div className="rounded-xl border border-dashed border-[#A855F7]/40 p-4"
+                    style={{ background:'#A855F710', animation:'explFadeIn .3s ease-out' }}>
+                    <div className="text-xs font-mono text-[#A855F7] font-semibold mb-2">今後の展望</div>
+                    <div className="text-[#CBD5E1] text-xs leading-relaxed">
+                      アダプティブ敵AIへの機械学習統合・プロシージャルアニメーションブレンド・
+                      ゲームプレイ状態に連動したリアルタイム音響合成の探求を予定しています。
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* CONTACT */}
+            {landedPlanetId==='contact' && (
+              <div className="space-y-6">
+                {show(0) && (
+                  <p className="text-[#CBD5E1] text-sm leading-relaxed"
+                    style={{ animation:'explFadeIn .3s ease-out' }}>
+                    現在、ゲーム開発・クライアントエンジニアリング分野での
+                    <span className="text-[#38BDF8] font-semibold">インターンシップやアルバイトの機会</span>を探しています。
+                    どんなことでもお気軽にご連絡ください。
+                  </p>
+                )}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  {([
+                    { label:'メール', value:'shun1310026@gmail.com',   href:'mailto:shun1310026@gmail.com',  color:'#0EA5E9', icon:'✉' },
+                    { label:'GitHub', value:'github.com/shunshun0803', href:'https://github.com/shunshun0803', color:'#A855F7', icon:'⬡' },
+                  ] as const).map((lk,i) => show(1+i) && (
+                    <a key={lk.label} href={lk.href}
+                      target={lk.href.startsWith('http')?'_blank':undefined}
+                      rel={lk.href.startsWith('http')?'noopener noreferrer':undefined}
+                      className="flex items-center gap-3 px-5 py-3 rounded-lg border transition-all duration-200 hover:scale-105"
+                      style={{ borderColor:lk.color+'40', background:lk.color+'12', animation:'explFadeIn .3s ease-out' }}>
+                      <span className="text-lg" style={{ color:lk.color }}>{lk.icon}</span>
+                      <div>
+                        <div className="text-[10px] font-mono text-[#94A3B8]">{lk.label}</div>
+                        <div className="text-white text-sm font-medium">{lk.value}</div>
+                      </div>
+                      <span className="ml-auto text-xs" style={{ color:lk.color }}>↗</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <button onClick={closeLanding}
+              className="mt-8 text-[10px] font-mono text-[#475569] hover:text-white transition-colors">
+              [ESC] 探索に戻る
+            </button>
+          </div>
+        </div>
+      )}
+
       <style>{`
-        @keyframes panelSlideUp {
-          from { transform: translateY(16px); opacity: 0; }
-          to   { transform: translateY(0);    opacity: 1; }
+        @keyframes explFadeIn {
+          from { opacity:0; transform:translateY(8px); }
+          to   { opacity:1; transform:translateY(0); }
         }
       `}</style>
     </div>

@@ -1,14 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 
+export interface BossStats {
+  graze: number;
+  clearFrames: number;
+  bombsUsed: number;
+}
+
 interface BossGameProps {
-  onBossDefeated: () => void;
+  onBossDefeated: (stats: BossStats) => void;
   onExit: () => void;
   onRetry: () => void;
 }
 
 // ── 定数 ──────────────────────────────────────────────
 const STAR_COUNT   = 280;
-const BAR_HP       = 200;  // A案: バー1本あたりのHP
+const BAR_HP       = 5;    // DEBUG: 本番は200
 const BOSS_R       = 62;
 const PLAYER_R     = 14;
 const HITBOX_R     = 5;
@@ -106,6 +112,8 @@ export function BossGame({ onBossDefeated, onExit, onRetry }: BossGameProps) {
     const particles: Particle[] = [];
 
     let grazeCount = 0;
+    let bombsUsed  = 0;
+    let clearFrame = 0;
     const GRAZE_DIST = PLAYER_R + 22;
     const grazed = new Set<BBullet>();
     const keys: Record<string, boolean> = {};
@@ -194,6 +202,7 @@ export function BossGame({ onBossDefeated, onExit, onRetry }: BossGameProps) {
     const activateBomb = () => {
       if (player.bombs <= 0 || player.bombTimer > 0 || gs !== 'playing') return;
       player.bombs--;
+      bombsUsed++;
       player.inv = BOMB_INV_F;
       player.bombTimer = 60;
       bBullets.forEach(b => { b.active = false; });
@@ -442,7 +451,7 @@ export function BossGame({ onBossDefeated, onExit, onRetry }: BossGameProps) {
                 if (boss.bar<2) {
                   startTransition();
                 } else {
-                  boss.defeated=true; gs='victory';
+                  boss.defeated=true; gs='victory'; clearFrame=frame;
                   bBullets.forEach(b2=>{b2.active=false;});
                   pBullets.forEach(b2=>{b2.active=false;});
                   burst(boss.x,boss.y,'#ffffff',90,9); burst(boss.x,boss.y,'#FFD700',70,8);
@@ -502,7 +511,7 @@ export function BossGame({ onBossDefeated, onExit, onRetry }: BossGameProps) {
         if (vt===15)  { burst(boss.x,boss.y,'#ffffff',90,9); }
         if (vt===40)  { burst(boss.x,boss.y,'#FFD700',70,8); burst(boss.x,boss.y,'#A855F7',50,6); }
         if (vt===70)  { burst(boss.x,boss.y,'#38BDF8',70,8); burst(boss.x,boss.y,'#EF4444',60,7); }
-        if (vt===280) setTimeout(onBossDefeated,0);
+        if (vt===280) setTimeout(() => onBossDefeated({ graze: grazeCount, clearFrames: clearFrame, bombsUsed }), 0);
       }
 
       // パーティクル更新

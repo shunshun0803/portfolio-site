@@ -9,13 +9,14 @@ import { Research } from './sections/Research';
 import { Contact } from './sections/Contact';
 import { scrollStore } from './store/scroll';
 import { type GameMode } from './store/game';
-import { BossGame } from './components/game/BossGame';
+import { BossGame, type BossStats } from './components/game/BossGame';
 import { PortalOverlay } from './components/game/PortalOverlay';
 import { ExploreGame } from './components/game/ExploreGame';
 
 function App() {
-  const [gameMode, setGameMode] = useState<GameMode>('idle');
-  const [bossKey,  setBossKey]  = useState(0);
+  const [gameMode,  setGameMode]  = useState<GameMode>('idle');
+  const [bossKey,   setBossKey]   = useState(0);
+  const [bossStats, setBossStats] = useState<BossStats | null>(null);
 
   useEffect(() => {
     const onScroll = () => {
@@ -26,7 +27,7 @@ function App() {
   }, []);
 
   const handleStartBoss    = () => setGameMode('boss');
-  const handleBossDefeated = () => setGameMode('portal');
+  const handleBossDefeated = (stats: BossStats) => { setBossStats(stats); setGameMode('portal'); };
   const handlePortalDone   = () => setGameMode('explore');
   const handleExitGame     = () => setGameMode('idle');
   const handleRetryBoss    = () => setBossKey((k) => k + 1);
@@ -47,7 +48,6 @@ function App() {
         </main>
       </div>
 
-      {/* Game overlays (full-screen, z-50) */}
       {gameMode === 'boss' && (
         <BossGame
           key={bossKey}
@@ -57,7 +57,7 @@ function App() {
         />
       )}
       {gameMode === 'portal'  && <PortalOverlay onComplete={handlePortalDone} />}
-      {gameMode === 'explore' && <ExploreGame   onExit={handleExitGame} />}
+      {gameMode === 'explore' && <ExploreGame   onExit={handleExitGame} bossStats={bossStats} />}
     </div>
   );
 }
