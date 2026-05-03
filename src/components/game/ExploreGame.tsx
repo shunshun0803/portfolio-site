@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { projects } from '../../data/projects';
 import { skillCategories } from '../../data/skills';
+import { socialLinks } from '../../data/links';
 import type { BossStats } from './BossGame';
 
 interface ExploreGameProps {
@@ -8,7 +9,7 @@ interface ExploreGameProps {
   bossStats: BossStats | null;
 }
 
-type PlanetId = 'about' | 'works-0' | 'works-1' | 'works-2' | 'skills' | 'research' | 'contact';
+type PlanetId = 'about' | 'skills' | 'research' | 'contact' | `works-${number}`;
 
 interface PlanetDef {
   id: PlanetId; label: string; number: string;
@@ -31,13 +32,28 @@ const GAME_KEYS = new Set([
   'KeyA','KeyS','KeyD','KeyW','Enter','Escape','Space',
 ]);
 
+const ROMAN = ['I','II','III','IV','V','VI','VII','VIII','IX','X'];
+
+const worksPlanets: PlanetDef[] = projects.map((_, i) => {
+  const n = projects.length;
+  const t = n <= 1 ? 0.5 : i / (n - 1);
+  return {
+    id: `works-${i}` as PlanetId,
+    label: `PROJ.${ROMAN[i] ?? String(i + 1)}`,
+    number: '02',
+    color: '#F97316',
+    wx: Math.round(2080 + t * 500),
+    wy: Math.round(380  + t * 680),
+    radius: Math.round(46 + t * 32),
+    dim: i === 0 && n > 1,
+  };
+});
+
 const PLANET_DEFS: PlanetDef[] = [
   { id:'about',    label:'ABOUT',    number:'01', color:'#38BDF8', wx: 480, wy: 680, radius:70 },
   { id:'research', label:'RESEARCH', number:'04', color:'#22C55E', wx: 560, wy:1380, radius:66 },
   { id:'skills',   label:'SKILLS',   number:'03', color:'#A855F7', wx:1480, wy:1680, radius:62 },
-  { id:'works-0',  label:'PROJ.I',   number:'02', color:'#F97316', wx:2080, wy: 380, radius:46, dim:true },
-  { id:'works-1',  label:'PROJ.II',  number:'02', color:'#F97316', wx:2340, wy: 720, radius:62 },
-  { id:'works-2',  label:'PROJ.III', number:'02', color:'#F97316', wx:2580, wy:1060, radius:78 },
+  ...worksPlanets,
   { id:'contact',  label:'CONTACT',  number:'05', color:'#EC4899', wx:2620, wy:1640, radius:56 },
 ];
 
@@ -288,10 +304,10 @@ export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
           ctx.beginPath(); ctx.ellipse(0,0,p.radius*1.7,p.radius*.28,0,0,Math.PI*2); ctx.stroke();
           ctx.restore();
         } else if (p.id.startsWith('works')) {
-          const wi=+p.id.slice(-1), or=p.radius*(1.5+wi*.14);
+          const wi=parseInt(p.id.slice(6)), or=p.radius*(1.5+wi*.14);
           ctx.strokeStyle=p.color+'40'; ctx.lineWidth=1;
           ctx.beginPath(); ctx.arc(0,0,or,0,Math.PI*2); ctx.stroke();
-          const sa=t*(.45-wi*.08);
+          const sa=t*Math.max(0.1, .45-wi*.08);
           ctx.shadowColor=p.color; ctx.shadowBlur=6; ctx.fillStyle=p.color+'CC';
           ctx.beginPath(); ctx.arc(Math.cos(sa)*or,Math.sin(sa)*or,2.5,0,Math.PI*2); ctx.fill();
           ctx.shadowBlur=0;
@@ -418,10 +434,10 @@ export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
 
   // ── Panel helpers ────────────────────────────────────────────────
   const landedDef  = PLANET_DEFS.find(p => p.id===landedPlanetId);
-  const worksIdx   = landedPlanetId?.startsWith('works') ? +landedPlanetId.slice(-1) : -1;
+  const worksIdx   = landedPlanetId?.startsWith('works-') ? parseInt(landedPlanetId.slice(6)) : -1;
   const project    = worksIdx>=0 ? projects[worksIdx]??null : null;
   const panelTitle = project ? project.title : (landedPlanetId ? SECTION_TITLES[landedPlanetId]??'' : '');
-  const panelNum   = landedDef ? (worksIdx>=0 ? `02-${['I','II','III'][worksIdx]}` : landedDef.number) : '';
+  const panelNum   = landedDef ? (worksIdx>=0 ? `02-${ROMAN[worksIdx] ?? String(worksIdx+1)}` : landedDef.number) : '';
 
   const formatTime = (frames: number) => {
     const s=Math.floor(frames/60), m=Math.floor(s/60);
@@ -521,7 +537,7 @@ export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
                     style={{ animation:'explFadeIn .3s ease-out' }}>
                     {([
                       ['ROLE',  'ゲームクライアントエンジニア / Unity開発者'],
-                      ['FOCUS', 'ゲームプレイシステム・AI・アニメーション'],
+                      ['FOCUS', 'ゲームプレイシステム・AI・サウンド・グラフィックス'],
                       ['ENGINE','Unity (C#)'],
                       ['STATUS','インターン・就職機会を探しています'],
                     ] as [string,string][]).map(([k,v]) => (
@@ -541,10 +557,10 @@ export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
                 )}
                 <div className="grid grid-cols-2 gap-3">
                   {([
-                    { icon:'🎮', label:'ゲーム開発',        desc:'戦闘・AI・ゲームフィールに注力したUnityプロトタイプ開発' },
-                    { icon:'🤖', label:'AI・アニメーション', desc:'敵キャラクターの行動・ステートマシン・フィードバック実装' },
-                    { icon:'🔊', label:'サウンド・表現',     desc:'音響統合とインタラクティブな感情表現設計' },
-                    { icon:'🌐', label:'Web・ツール',        desc:'React・TypeScript・Three.jsを用いたUI開発' },
+                    { icon:'🎮', label:'ゲーム開発',   desc:'アクション・3Dヴァンサバ・トップダウンSTG・スレスパ風タワーディフェンスなど、多ジャンルのUnityゲーム開発' },
+                    { icon:'🤖', label:'AI',          desc:'対戦ゲームへの機械学習統合によるゲームAI開発。行動学習・意思決定・ステートマシンの研究と実装' },
+                    { icon:'🔊', label:'サウンド',     desc:'Logic Proを用いた楽曲・効果音制作と、ゲームエンジン内のインタラクティブ音響システム設計' },
+                    { icon:'🎨', label:'グラフィックス', desc:'Blenderによる3Dモデリング・アニメーション制作とVFX・シェーダーによるビジュアルフィードバック実装' },
                   ]).map((h,i) => show(2+i) && (
                     <div key={h.label} className="rounded-lg border border-white/10 p-3 bg-white/5"
                       style={{ animation:'explFadeIn .3s ease-out' }}>
@@ -563,10 +579,10 @@ export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
                 {show(0) && (
                   <div className="flex items-center gap-2 text-[10px] font-mono"
                     style={{ animation:'explFadeIn .3s ease-out' }}>
-                    <span style={{ color:landedDef.color }}>PROJECT {['I','II','III'][worksIdx]}</span>
-                    <span className="text-[#334155]">/ 3</span>
+                    <span style={{ color:landedDef.color }}>PROJECT {ROMAN[worksIdx] ?? String(worksIdx+1)}</span>
+                    <span className="text-[#334155]">/ {projects.length}</span>
                     <div className="h-px flex-1 bg-white/10" />
-                    <span className="text-[#94A3B8]">{worksIdx===0?'最初期':worksIdx===1?'中期':'最新'}</span>
+                    <span className="text-[#94A3B8]">{worksIdx===0?'最初期':worksIdx===projects.length-1?'最新':'中期'}</span>
                   </div>
                 )}
                 {show(1) && (
@@ -627,16 +643,18 @@ export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
                 {show(0) && (
                   <div className="rounded-xl border border-white/10 p-4 bg-white/5 text-[#CBD5E1] text-sm leading-relaxed"
                     style={{ animation:'explFadeIn .3s ease-out' }}>
-                    現在は<span className="text-[#38BDF8] font-semibold">ゲームAI研究を目的とした3Dアクションゲームプロトタイプ</span>の開発に取り組んでいます。
-                    今後は<span className="text-[#A855F7] font-semibold">機械学習やアダプティブAIの統合</span>も視野に入れています。
+                    音から<span className="text-[#38BDF8] font-semibold">音量・ピッチ・テンポ・周波数スペクトル</span>などの特徴量を抽出し、
+                    機械学習モデルで感情ラベルに変換。その結果をキャラクターの
+                    <span className="text-[#A855F7] font-semibold">表情ブレンドシェイプ・体の動き</span>にリアルタイムで反映する
+                    アニメーションシステムの研究開発に取り組んでいます。
                   </div>
                 )}
                 <div className="grid grid-cols-2 gap-3">
                   {([
-                    { icon:'⚔️', title:'ゲームプレイシステム', color:'#0EA5E9', desc:'戦闘メカニクス・プレイヤーアクション・スタミナシステム・ステートマシンの設計と実装。' },
-                    { icon:'🤖', title:'敵AI・行動設計',       color:'#A855F7', desc:'NavMesh・ビヘイビアツリー・状態遷移を活用した、動的でリアクティブなボスAIの構築。' },
-                    { icon:'🎬', title:'アニメーション・FB',   color:'#16A34A', desc:'アニメーションブレンド・ヒットストップ・カメラシェイク・VFXトリガーの実装。' },
-                    { icon:'🔊', title:'サウンド・感情表現',   color:'#EA580C', desc:'アダプティブオーディオ・BGM遷移・サウンド主導のフィードバックで感情に響くゲームプレイを実現。' },
+                    { icon:'🎵', title:'音響特徴抽出',           color:'#0EA5E9', desc:'音声・音楽信号から音量・ピッチ・テンポ・MFCCなどの特徴量をリアルタイムで抽出し、アニメーション制御の入力データとして活用。' },
+                    { icon:'🤖', title:'感情推定AI',             color:'#A855F7', desc:'抽出した音響特徴を機械学習モデルで処理し、喜び・怒り・悲しみなどの感情ラベルおよび強度をリアルタイムで推定して出力。' },
+                    { icon:'🎭', title:'表情・ボディ制御',        color:'#16A34A', desc:'感情推定の出力をリアルタイムで表情ブレンドシェイプや体のポーズ・身振りに変換し、キャラクターのアニメーションへ反映。' },
+                    { icon:'🔄', title:'リアルタイムパイプライン', color:'#EA580C', desc:'音入力→特徴抽出→感情推定→アニメーション出力の一連のパイプラインを低遅延で動作させるシステムアーキテクチャの設計。' },
                   ]).map((a,i) => show(1+i) && (
                     <div key={a.title} className="rounded-lg border border-white/10 p-3 bg-white/5"
                       style={{ animation:'explFadeIn .3s ease-out' }}>
@@ -655,8 +673,8 @@ export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
                     style={{ background:'#A855F710', animation:'explFadeIn .3s ease-out' }}>
                     <div className="text-xs font-mono text-[#A855F7] font-semibold mb-2">今後の展望</div>
                     <div className="text-[#CBD5E1] text-xs leading-relaxed">
-                      アダプティブ敵AIへの機械学習統合・プロシージャルアニメーションブレンド・
-                      ゲームプレイ状態に連動したリアルタイム音響合成の探求を予定しています。
+                      複数感情の中間表現（感情ブレンド）への対応・音楽/音声/環境音それぞれへのモデル特化・リアルタイム推論の最適化による遅延削減を予定。
+                      将来的にはゲームキャラクターが環境音やBGMに応じて自律的に反応するインタラクティブシステムへの発展を目指しています。
                     </div>
                   </div>
                 )}
@@ -674,25 +692,35 @@ export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
                     どんなことでもお気軽にご連絡ください。
                   </p>
                 )}
-                <div className="flex flex-col sm:flex-row gap-4">
-                  {([
-                    { label:'メール', value:'shun1310026@gmail.com',   href:'mailto:shun1310026@gmail.com',  color:'#0EA5E9', icon:'✉' },
-                    { label:'GitHub', value:'github.com/shunshun0803', href:'https://github.com/shunshun0803', color:'#A855F7', icon:'⬡' },
-                  ] as const).map((lk,i) => show(1+i) && (
-                    <a key={lk.label} href={lk.href}
-                      target={lk.href.startsWith('http')?'_blank':undefined}
-                      rel={lk.href.startsWith('http')?'noopener noreferrer':undefined}
-                      className="flex items-center gap-3 px-5 py-3 rounded-lg border transition-all duration-200 hover:scale-105"
+                {show(1) && (() => {
+                  const lk = socialLinks.find(l => l.href.startsWith('mailto'))!;
+                  return (
+                    <a href={lk.href}
+                      className="inline-flex items-center gap-3 px-5 py-3 rounded-lg border transition-all duration-200 hover:scale-105"
                       style={{ borderColor:lk.color+'40', background:lk.color+'12', animation:'explFadeIn .3s ease-out' }}>
-                      <span className="text-lg" style={{ color:lk.color }}>{lk.icon}</span>
+                      <span className="text-xl shrink-0" style={{ color:lk.color }}>{lk.icon}</span>
                       <div>
-                        <div className="text-[10px] font-mono text-[#94A3B8]">{lk.label}</div>
+                        <div className="text-[9px] font-mono text-[#94A3B8]">{lk.label}</div>
                         <div className="text-white text-sm font-medium">{lk.value}</div>
                       </div>
-                      <span className="ml-auto text-xs" style={{ color:lk.color }}>↗</span>
+                      <span className="ml-4 text-xs shrink-0" style={{ color:lk.color }}>↗</span>
                     </a>
-                  ))}
-                </div>
+                  );
+                })()}
+                {show(2) && (
+                  <div className="flex flex-wrap gap-3 pt-1" style={{ animation:'explFadeIn .3s ease-out' }}>
+                    {socialLinks.filter(l => !l.href.startsWith('mailto')).map(lk => (
+                      <a key={lk.label} href={lk.href} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-[11px] font-mono transition-all duration-200 hover:scale-110"
+                        style={{ color:'#94A3B8' }}
+                        onMouseEnter={e => (e.currentTarget.style.color = lk.color)}
+                        onMouseLeave={e => (e.currentTarget.style.color = '#94A3B8')}>
+                        <span>{lk.icon}</span>
+                        <span>{lk.label}</span>
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 

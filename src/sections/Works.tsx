@@ -16,7 +16,7 @@ export function Works() {
           <SectionTitle
             label="// 02.works"
             title="制作物"
-            subtitle="ゲーム開発・インタラクティブシステム・技術的探求を示す代表的なプロジェクト。"
+            // subtitle="ゲーム開発・インタラクティブシステム・技術的探求を示す代表的なプロジェクト。"
           />
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">

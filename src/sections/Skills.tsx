@@ -31,7 +31,7 @@ export function Skills() {
           <SectionTitle
             label="// 03.skills"
             title="スキル"
-            subtitle="実際に使用している技術・ツール一覧。偽のゲージなし、実力ベースのタグ表示。"
+            // subtitle="実際に使用している技術・ツール一覧。ゲーム開発に関連するスキルを中心に、経験のある技術スタックを示しています。"
           />
 
           <div className="grid sm:grid-cols-2 gap-5">

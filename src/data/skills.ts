@@ -8,21 +8,21 @@ export const skillCategories: SkillCategory[] = [
   {
     category: 'ゲーム開発',
     color: 'cyan',
-    skills: ['Unity', 'C#', 'Animator', 'NavMesh', 'Cinemachine'],
+    skills: ['Unity', 'C#', 'UniTask', 'R3', 'VContainer'],
   },
   {
-    category: 'フロントエンド',
+    category: 'その他言語',
     color: 'purple',
-    skills: ['React', 'TypeScript', 'Tailwind CSS', 'Three.js'],
+    skills: ['Go', 'Java', 'Python', 'c++'],
   },
   {
     category: 'ツール',
     color: 'green',
-    skills: ['Git', 'GitHub', 'Blender', 'Reaper'],
+    skills: ['Git', 'GitHub', 'Blender', 'Logic Pro'],
   },
   {
     category: '研究・その他',
     color: 'orange',
-    skills: ['AI', 'アニメーション', 'サウンドデザイン', 'Python'],
+    skills: ['AI', 'アニメーション', 'サウンド', 'Python', 'HLSL'],
   },
 ];

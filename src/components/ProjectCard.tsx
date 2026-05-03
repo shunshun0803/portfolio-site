@@ -33,7 +33,15 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
         <div className="absolute bottom-3 left-3 w-4 h-4 border-l-2 border-b-2 z-10 pointer-events-none" style={{ borderColor: accentHex }} />
         <div className="absolute bottom-3 right-3 w-4 h-4 border-r-2 border-b-2 z-10 pointer-events-none" style={{ borderColor: accentHex }} />
 
-        <ProjectThumbnail projectId={project.id} hovered={hovered} />
+        {project.thumbnail ? (
+          <img
+            src={project.thumbnail}
+            alt={project.title}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <ProjectThumbnail projectId={project.id} hovered={hovered} />
+        )}
       </div>
 
       {/* Content */}
@@ -54,18 +62,6 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
         </div>
 
         <div className="flex gap-3 pt-3 border-t border-black/5">
-          {project.githubUrl ? (
-            <a
-              href={project.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-[#475569] hover:text-[#0EA5E9] transition-colors duration-200 flex items-center gap-1"
-            >
-              <span>GitHub</span><span>↗</span>
-            </a>
-          ) : (
-            <span className="text-xs text-[#94A3B8]">GitHub (soon)</span>
-          )}
           {project.demoUrl ? (
             <a
               href={project.demoUrl}

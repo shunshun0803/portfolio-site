@@ -73,7 +73,7 @@ export function Navbar() {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden glass border-t border-black/5 px-6 py-4">
-          <ul className="flex flex-col gap-4">
+          <ul className="flex flex-col gap-4 mb-5">
             {navLinks.map((link) => (
               <li key={link.href}>
                 <button

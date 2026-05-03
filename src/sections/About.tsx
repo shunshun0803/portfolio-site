@@ -3,10 +3,10 @@ import { SectionTitle } from '../components/SectionTitle';
 import { GlassCard } from '../components/GlassCard';
 
 const highlights = [
-  { icon: '🎮', label: 'ゲーム開発', desc: '戦闘・AI・ゲームフィールに注力したUnityプロトタイプ開発' },
-  { icon: '🤖', label: 'AI・アニメーション', desc: '敵キャラクターの行動・ステートマシン・フィードバック実装' },
-  { icon: '🔊', label: 'サウンド・表現', desc: '音響統合とインタラクティブな感情表現設計' },
-  { icon: '🌐', label: 'Web・ツール', desc: 'React・TypeScript・Three.jsを用いたUI開発' },
+  { icon: '🎮', label: 'ゲーム開発', desc: 'アクション・3Dヴァンサバ・トップダウンSTG・スレスパ風タワーディフェンスなど、多ジャンルのUnityゲーム開発' },
+  { icon: '🤖', label: 'AI', desc: '対戦ゲームへの機械学習統合によるゲームAI開発。行動学習・意思決定・ステートマシンの研究と実装' },
+  { icon: '🔊', label: 'サウンド', desc: 'Logic Proを用いた楽曲・効果音制作と、ゲームエンジン内のインタラクティブ音響システム設計' },
+  { icon: '🎨', label: 'グラフィックス', desc: 'Blenderによる3Dモデリング・アニメーション制作とVFX・シェーダーによるビジュアルフィードバック実装' },
 ];
 
 export function About() {
@@ -26,13 +26,13 @@ export function About() {
             <div className="space-y-4">
               <p className="text-[#0F172A] leading-relaxed">
                 <span className="text-[#0EA5E9] font-semibold">ゲーム開発</span>・
-                <span className="text-[#A855F7] font-semibold">アニメーション</span>・
-                <span className="text-[#0EA5E9] font-semibold">AI</span>・
-                <span className="text-[#A855F7] font-semibold">サウンド</span>
+                <span className="text-[#A855F7] font-semibold">AI</span>・
+                <span className="text-[#0EA5E9] font-semibold">サウンド</span>・
+                <span className="text-[#A855F7] font-semibold">グラフィックス</span>
                 に興味を持つ情報系の学生です。
               </p>
               <p className="text-[#475569] leading-relaxed text-sm">
-                主にUnityとC#を使用してゲームプレイプロトタイプを開発しており、戦闘システム・プレイヤー制御・敵AI・アニメーション制御・フィードバック設計に取り組んでいます。
+                主にUnityとC#を使用してゲーム開発をしており、戦闘システム・プレイヤー制御・敵AI・アニメーション制御・フィードバック設計に取り組んでいます。
               </p>
               <p className="text-[#475569] leading-relaxed text-sm">
                 正しく動作するだけでなく、操作していて気持ちいいと感じられる、表現力豊かでレスポンシブなゲーム体験の構築を目指しています。
@@ -43,9 +43,9 @@ export function About() {
                 <div className="space-y-2 font-mono text-xs">
                   {[
                     { key: 'ROLE', val: 'ゲームクライアントエンジニア / Unity開発者' },
-                    { key: 'FOCUS', val: 'ゲームプレイシステム・AI・アニメーション' },
-                    { key: 'ENGINE', val: 'Unity (C#)' },
-                    { key: 'STATUS', val: 'インターン・就職機会を探しています' },
+                    { key: 'FOCUS', val: 'ゲームプレイシステム・AI・アニメーション・サウンド・グラフィックス' },
+                    { key: 'TECH', val: 'Unity (C#)・Go・Java・Python・Blender・HLSL' },
+                    { key: 'STATUS', val: '就活中' },
                   ].map((row) => (
                     <div key={row.key} className="flex gap-3">
                       <span className="text-[#0EA5E9] w-16 shrink-0">{row.key}</span>

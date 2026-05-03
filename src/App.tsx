@@ -12,6 +12,7 @@ import { type GameMode } from './store/game';
 import { BossGame, type BossStats } from './components/game/BossGame';
 import { PortalOverlay } from './components/game/PortalOverlay';
 import { ExploreGame } from './components/game/ExploreGame';
+import { SocialSidebar } from './components/SocialSidebar';
 
 function App() {
   const [gameMode,  setGameMode]  = useState<GameMode>('idle');
@@ -35,6 +36,8 @@ function App() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A]">
       <ParticleBackground />
+
+      <SocialSidebar />
 
       <div style={{ position: 'relative', zIndex: 1 }}>
         <Navbar />

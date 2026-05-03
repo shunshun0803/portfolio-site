@@ -36,7 +36,7 @@ export function Hero({ onStartBoss }: HeroProps) {
           <div className="flex-1 text-center md:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#38BDF8]/40 bg-[#38BDF8]/10 mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse-glow" />
-              <span className="text-xs font-mono text-[#0EA5E9]">インターン・就職機会を探しています</span>
+              <span className="text-xs font-mono text-[#0EA5E9]">就活中</span>
             </div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#0F172A] leading-tight mb-3">
@@ -79,7 +79,7 @@ export function Hero({ onStartBoss }: HeroProps) {
                   boxShadow: '0 4px 20px rgba(239,68,68,0.30)',
                 }}
               >
-                ⚔ ボスに挑む
+                ⚔ ミニゲームを遊ぶ
               </button>
             </div>
 
