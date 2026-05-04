@@ -14,7 +14,7 @@ interface BossGameProps {
 
 // ── 定数 ──────────────────────────────────────────────
 const STAR_COUNT   = 280;
-const BAR_HP       = 5;    // DEBUG: 本番は200
+const BAR_HP       = 200;    // DEBUG: 本番は200
 const BOSS_R       = 62;
 const PLAYER_R     = 14;
 const HITBOX_R     = 5;

@@ -1,3 +1,9 @@
+import chronostepImg from './thumbnails/chronostep.jpg'
+import redSurvivorImg from './thumbnails/red-survivor.jpg'
+import soulFallImg from './thumbnails/soul-fall.png'
+import kitchenChaosImg from './thumbnails/kitchenChaos.png'
+import littleAdventureImg from './thumbnails/little-adventure.png'
+
 export interface Project {
   id: string;
   title: string;
@@ -13,47 +19,47 @@ export const projects: Project[] = [
   {
     id: 'chronostep',
     title: 'ChronoStep',
-    thumbnail: 'src/data/thumbnails/chronostep.jpg',
+    thumbnail: chronostepImg,
     description:
-      'React・TypeScript・Tailwind CSS・Three.jsを使用して構築した、ゲーム開発プロジェクトを紹介するフューチャリスティックなポートフォリオサイト。',
-    tech: ['React', 'TypeScript', 'Tailwind CSS', 'Three.js'],
+      'スーバーホットをイメージして作成したトップダウンシューターです。止まれば敵の弾丸もスローモーションに。 弾道の視覚化と弾の反射を実装して、戦略的なプレイを促進しています。',
+    tech: ['Unity', 'C#'],
     demoUrl: 'https://unityroom.com/games/chronostep',
   },
   {
     id: 'red-survivor',
     title: 'RED.SURVIVOR',
-    thumbnail: 'src/data/thumbnails/red-survivor.jpg',
+    thumbnail: redSurvivorImg,
     description:
-      'React・TypeScript・Tailwind CSS・Three.jsを使用して構築した、ゲーム開発プロジェクトを紹介するフューチャリスティックなポートフォリオサイト。',
-    tech: ['React', 'TypeScript', 'Tailwind CSS', 'Three.js'],
+      'ヴァンサバ風の3Dアクションゲームプロトタイプです。3つの武器を強化しながら敵を倒していきましょう。VFXやポストエフェクトを駆使して、爽快な戦闘体験を目指しました。',
+    tech: ['Unity', 'C#', 'R3','UniTask', 'VContainer'],
     demoUrl: 'https://unityroom.com/games/redsurvivor',
   },
   
   {
     id: 'SoulFall',
     title: 'Soul Fall',
-    thumbnail: 'src/data/thumbnails/soul-fall.png',
+    thumbnail: soulFallImg,
     description:
-      'React・TypeScript・Tailwind CSS・Three.jsを使用して構築した、ゲーム開発プロジェクトを紹介するフューチャリスティックなポートフォリオサイト。',
-    tech: ['React', 'TypeScript', 'Tailwind CSS', 'Three.js'],
+      '研究室の展示用に作成したソウルライクゲームのプロトタイプです。プレイヤーは剣と盾を駆使して、敵の攻撃を回避しながら戦います。シンプルな操作性と挑戦的なゲームプレイを目指しました。',
+    tech: ['Unity', 'c#'],
     demoUrl: 'https://play.unity.com/ja/games/ad74b4af-9945-4fc5-a8a7-0d6be68b4e0d/soul-fall',
   },
   {
     id: 'Kitchen-Chaos',
     title: 'Kitchen Chaos',
-    thumbnail: 'src/data/thumbnails/kitchenChaos.png',
+    thumbnail: kitchenChaosImg,
     description:
-      'ゲームプレイ・アニメーション・サウンドを通じた敵キャラクターの行動パターン、アニメーション遷移、インタラクティブな感情表現を実験するための研究プロトタイプ。',
-    tech: ['Unity', 'C#', 'AI', 'Animation', 'Audio'],
+      'youtubeの動画を参考に作成したOvercooked風のキッチンアクションゲームのプロトタイプです。プレイヤーはシェフとなり、注文された料理を作るために食材を切ったり、鍋で調理したりします。協力プレイも可能で、友達と一緒に楽しむことができます。',
+    tech: ['Unity', 'C#'],
     demoUrl: 'https://shun08shun.itch.io/kitchenchaos',
   },
   {
     id: 'little-adventure',
     title: 'Little Adventure',
-    thumbnail: 'src/data/thumbnails/little-adventure.png',
+    thumbnail: littleAdventureImg,
     description:
-      'プレイヤーの移動・攻撃・回避・パリィ・ロックオン・スタミナ管理・ボスAI・ヒットストップ・カメラシェイク・戦闘フィードバックを実装した3Dアクションゲームプロトタイプ。',
-    tech: ['Unity', 'C#', 'NavMesh', 'Animator', 'Cinemachine'],
+      'Udemyのコースを参考に作成した3Dアクションゲームのプロトタイプです。NavMeshやAnimatorの使い方やPlayerの動きや敵の動きの実装を学びました。Cinemachineを使用して、カメラワークも工夫しています。',
+    tech: ['Unity', 'C#', 'NavMesh', 'Animator'],
     demoUrl: 'https://shun08shun.itch.io/littleadventure',
   },
   
