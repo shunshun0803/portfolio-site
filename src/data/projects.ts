@@ -3,6 +3,8 @@ import redSurvivorImg from './thumbnails/red-survivor.jpg'
 import soulFallImg from './thumbnails/soul-fall.png'
 import kitchenChaosImg from './thumbnails/kitchenChaos.png'
 import littleAdventureImg from './thumbnails/little-adventure.png'
+import ticTacToeImg from './thumbnails/TicTacToeImg.png'
+import zankiBossBattleImg from './thumbnails/Zanki.png'
 
 export interface Project {
   id: string;
@@ -16,6 +18,24 @@ export interface Project {
 }
 
 export const projects: Project[] = [
+  {
+    id: 'zanki: Boss Battle',
+    title: 'Zanki: Boss Battle',
+    thumbnail: zankiBossBattleImg,
+    description:
+      '隻狼インスパイアのボスバトル3Dアクションゲームプロトタイプです。ボスAIにML-Agents（強化学習）を実装し、プレイヤーの行動パターンを学習しながら強くなる仕組みを自作しました。体幹崩壊・パリィ・コンボなどのシステムをMVP+TDD設計で実装し、スキルベースの緊張感ある戦闘体験を目指しました。',
+    tech: ['Unity', 'C#', 'ML-Agents', 'UniTask', 'R3', 'VContainer'],
+    demoUrl: 'https://unityroom.com/games/zanki_boss',
+  },
+  {
+    id: 'Tic-Tac-Toe',
+    title: 'Tic Tac Toe',
+    thumbnail: ticTacToeImg,
+    description:
+      'Unityで制作した3D三目並べゲームです.対戦相手のAIにQ学習（強化学習）を実装し、対局を重ねるごとに強くなる仕組みを自作しました。',
+    tech: ['Unity', 'C#', 'Q-Learning'],
+    demoUrl: 'https://unityroom.com/games/tic-tac-toe-ai',
+  },
   {
     id: 'chronostep',
     title: 'ChronoStep',

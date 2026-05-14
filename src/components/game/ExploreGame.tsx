@@ -22,9 +22,9 @@ const WORLD_W    = 3000;
 const WORLD_H    = 2000;
 const STAR_COUNT = 600;
 const APPROACH_D = 170;
-const MAX_SPEED  = 5;
+const MAX_SPEED  = 7;
 const FRICTION   = 0.92;
-const ACCEL      = 0.38;
+const ACCEL      = 0.55;
 
 // Keys that should not propagate to background UI
 const GAME_KEYS = new Set([
@@ -104,14 +104,13 @@ export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
   const graze     = bossStats?.graze ?? 0;
   const shipTier  = graze < SHIP_THRESHOLDS[1] ? 0 : graze < SHIP_THRESHOLDS[2] ? 1 : 2;
   const shipColor = SHIP_COLORS[shipTier];
-  const speedMult = shipTier >= 2 ? 1.2 : 1.0;
+  const speedMult = shipTier >= 2 ? 1.45 : shipTier >= 1 ? 1.2 : 1.0;
 
   const closeLanding = () => { landedRef.current = null; setLandedPlanetId(null); };
 
   // Typing reveal
   useEffect(() => {
     if (!landedPlanetId) return;
-    setRevealCount(0);
     const id = setInterval(() => setRevealCount(c => c + 1), 280);
     return () => clearInterval(id);
   }, [landedPlanetId]);
@@ -172,6 +171,7 @@ export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
           const id = nearRef.current;
           landedRef.current = id;
           visitedRef.current.add(id);
+          setRevealCount(0);
           setLandedPlanetId(id);
         }
       }
@@ -400,13 +400,14 @@ export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
       ctx.strokeStyle='#F9731638'; ctx.lineWidth=.8; ctx.setLineDash([3,5]);
       ctx.beginPath();
       wNodes.forEach((p,i)=>{
-        i===0?ctx.moveTo(MM_X+p.wx*mmSX,MM_Y+p.wy*mmSY):ctx.lineTo(MM_X+p.wx*mmSX,MM_Y+p.wy*mmSY);
+        if (i === 0) ctx.moveTo(MM_X+p.wx*mmSX,MM_Y+p.wy*mmSY);
+        else ctx.lineTo(MM_X+p.wx*mmSX,MM_Y+p.wy*mmSY);
       });
       ctx.stroke(); ctx.setLineDash([]);
       PLANET_DEFS.forEach(p=>{
         const mx=MM_X+p.wx*mmSX, my=MM_Y+p.wy*mmSY;
         const vis=visitedRef.current.has(p.id);
-        ctx.globalAlpha=vis?.92:.30; ctx.fillStyle=p.color;
+        ctx.globalAlpha=vis ? .92 : .30; ctx.fillStyle=p.color;
         if (vis){ctx.shadowColor=p.color; ctx.shadowBlur=5;}
         ctx.beginPath(); ctx.arc(mx,my,vis?3.5:2.2,0,Math.PI*2); ctx.fill();
         ctx.shadowBlur=0;
@@ -457,7 +458,7 @@ export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
       {!landedPlanetId && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 pointer-events-none">
           <div className="text-[10px] font-mono text-[#38BDF8]/60 bg-black/40 px-4 py-1.5 rounded-full tracking-wider">
-            WASD / ↑↓←→ で移動　惑星に近づいてスキャン → ENTER で着陸
+            WASD / ↑↓←→ で移動 惑星に近づいてスキャン → ENTER で着陸
           </div>
         </div>
       )}

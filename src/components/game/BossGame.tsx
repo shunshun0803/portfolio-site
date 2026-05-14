@@ -19,9 +19,12 @@ const BOSS_R       = 62;
 const PLAYER_R     = 14;
 const HITBOX_R     = 5;
 const P_BULLET_R   = 4;
-const PLAYER_SPD_N = 6;
-const PLAYER_SPD_F = 2.5;
-const P_BULLET_SPD = 15;
+const PLAYER_SPD_N = 7.5;
+const PLAYER_SPD_F = 3.5;
+const P_BULLET_SPD = 17;
+const BOSS_MOVE_SPEED = 1.35;
+const BOSS_DASH_SPEED = 1.25;
+const BOSS_BULLET_SPEED = 1.2;
 const INVINCIBLE_F = 120;
 const BOMB_INV_F   = 180;
 
@@ -140,7 +143,7 @@ export function BossGame({ onBossDefeated, onExit, onRetry }: BossGameProps) {
         if (!slot) return;
         const offset = count > 1 ? ((i/(count-1))-0.5)*spread : 0;
         const a = baseAngle + offset;
-        slot.x=boss.x; slot.y=boss.y; slot.vx=Math.cos(a)*spd; slot.vy=Math.sin(a)*spd;
+        slot.x=boss.x; slot.y=boss.y; slot.vx=Math.cos(a)*spd*BOSS_BULLET_SPEED; slot.vy=Math.sin(a)*spd*BOSS_BULLET_SPEED;
         slot.active=true; slot.type=type;
       }
     };
@@ -149,7 +152,7 @@ export function BossGame({ onBossDefeated, onExit, onRetry }: BossGameProps) {
     const fireFrom = (fx: number, fy: number, angle: number, type: BType, spd: number) => {
       const slot = bBullets.find((b) => !b.active);
       if (!slot) return;
-      slot.x=fx; slot.y=fy; slot.vx=Math.cos(angle)*spd; slot.vy=Math.sin(angle)*spd;
+      slot.x=fx; slot.y=fy; slot.vx=Math.cos(angle)*spd*BOSS_BULLET_SPEED; slot.vy=Math.sin(angle)*spd*BOSS_BULLET_SPEED;
       slot.active=true; slot.type=type;
     };
 
@@ -297,20 +300,20 @@ export function BossGame({ onBossDefeated, onExit, onRetry }: BossGameProps) {
             boss.x += ai.dashVx; boss.y += ai.dashVy;
             ai.dashVx *= 0.93; ai.dashVy *= 0.93;
           } else if (ph === 1) {
-            boss.moveTimer += 0.012;
+            boss.moveTimer += 0.012 * BOSS_MOVE_SPEED;
             boss.x = W/2 + Math.sin(boss.moveTimer) * W*0.30;
             boss.y = H*0.22 + Math.sin(boss.moveTimer*2) * H*0.10;
           } else if (ph === 2) {
-            boss.moveTimer += 0.022;
+            boss.moveTimer += 0.022 * BOSS_MOVE_SPEED;
             boss.x = W/2 + Math.sin(boss.moveTimer*0.9)*W*0.30 + Math.sin(boss.moveTimer*1.7)*W*0.06;
             boss.y = H*0.25 + Math.sin(boss.moveTimer*1.3)*H*0.12;
           } else {
-            const tgtX = player.x + Math.sin(frame*0.03)*80;
+            const tgtX = player.x + Math.sin(frame*0.03*BOSS_MOVE_SPEED)*80;
             const tgtY = Math.min(H*0.45, Math.max(BOSS_R+20, player.y - H*0.28));
-            boss.x += (tgtX - boss.x) * 0.010;
-            boss.y += (tgtY - boss.y) * 0.010;
-            boss.x += Math.sin(frame*0.05)*2.5;
-            boss.y += Math.cos(frame*0.038)*1.5;
+            boss.x += (tgtX - boss.x) * 0.010 * BOSS_MOVE_SPEED;
+            boss.y += (tgtY - boss.y) * 0.010 * BOSS_MOVE_SPEED;
+            boss.x += Math.sin(frame*0.05*BOSS_MOVE_SPEED)*2.5*BOSS_MOVE_SPEED;
+            boss.y += Math.cos(frame*0.038*BOSS_MOVE_SPEED)*1.5*BOSS_MOVE_SPEED;
           }
           boss.x = Math.max(BOSS_R+10, Math.min(W-BOSS_R-10, boss.x));
           boss.y = Math.max(BOSS_R+10, Math.min(H*0.55, boss.y));
@@ -372,7 +375,7 @@ export function BossGame({ onBossDefeated, onExit, onRetry }: BossGameProps) {
             if (ai.patternTimer === 1) {
               const dx=player.x-boss.x; const dy=player.y-boss.y;
               const len=Math.hypot(dx,dy)||1;
-              ai.dashVx=(dx/len)*13; ai.dashVy=(dy/len)*13;
+              ai.dashVx=(dx/len)*13*BOSS_DASH_SPEED; ai.dashVy=(dy/len)*13*BOSS_DASH_SPEED;
             }
             if (ai.patternTimer%10===0) fireBoss(3, Math.random()*Math.PI*2, Math.PI*0.5, 'circle', 2.2);
             if (ai.patternTimer>=60) { ai.pattern='none'; ai.dashVx=0; ai.dashVy=0; }
@@ -469,7 +472,7 @@ export function BossGame({ onBossDefeated, onExit, onRetry }: BossGameProps) {
             if (b.type === 'hunter') {
               const hdx=player.x-b.x; const hdy=player.y-b.y;
               const hdist=Math.hypot(hdx,hdy)||1;
-              const hs=2.2;
+              const hs=2.2 * BOSS_BULLET_SPEED;
               b.vx += (hdx/hdist*hs - b.vx)*0.03;
               b.vy += (hdy/hdist*hs - b.vy)*0.03;
               const cs=Math.hypot(b.vx,b.vy);
@@ -784,7 +787,7 @@ export function BossGame({ onBossDefeated, onExit, onRetry }: BossGameProps) {
       {/* 操作説明 */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 pointer-events-none">
         <div className="text-[10px] font-mono text-[#475569]">
-          WASD/矢印 移動　Shift 低速フォーカス　Z ボム
+          WASD/矢印 移動 Shift 低速フォーカス Z ボム
         </div>
       </div>
 
