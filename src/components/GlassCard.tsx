@@ -1,22 +1,29 @@
 import { type ReactNode } from 'react';
 
+type Accent = 'yellow' | 'orange' | 'none';
+
 interface GlassCardProps {
   children: ReactNode;
   className?: string;
-  glowColor?: 'cyan' | 'purple' | 'none';
+  accent?: Accent;
+  lift?: boolean;
 }
 
-export function GlassCard({ children, className = '', glowColor = 'none' }: GlassCardProps) {
-  const glowClass =
-    glowColor === 'cyan'
-      ? 'hover:glow-cyan hover:border-[#38BDF8]/30'
-      : glowColor === 'purple'
-      ? 'hover:glow-purple hover:border-[#A855F7]/30'
-      : 'hover:shadow-lg';
+const borderMap: Record<Accent, string> = {
+  yellow: 'var(--yellow)',
+  orange: 'var(--orange)',
+  none: 'var(--line)',
+};
 
+/**
+ * Retro pixel panel: solid dark fill, chunky border, hard (blur-free) drop shadow.
+ * Named GlassCard for continuity, but the look is now an arcade UI panel.
+ */
+export function GlassCard({ children, className = '', accent = 'none', lift = true }: GlassCardProps) {
   return (
     <div
-      className={`glass rounded-xl transition-all duration-300 ${glowClass} ${className}`}
+      className={`pixel-panel ${lift ? 'pixel-lift' : ''} ${className}`}
+      style={{ borderColor: borderMap[accent] }}
     >
       {children}
     </div>

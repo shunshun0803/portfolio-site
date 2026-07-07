@@ -44,7 +44,36 @@ public/
 
 ---
 
-## 2. 作品を追加・編集する
+## 2. 作品のデモ動画を設定する
+
+**動画の置き場所:** `public/videos/` フォルダ
+
+```
+public/
+  videos/
+    logicarta-demo.mp4      ← ここに動画を置く
+```
+
+**`src/data/projects.ts` に `videoUrl` を追加すると反映されます：**
+
+```ts
+{
+  id: 'logicarta',
+  title: 'LOGICARTA',
+  thumbnail: '/thumbnails/logicarta.png',
+  videoUrl: '/videos/logicarta-demo.mp4',  // ← この行を追加
+  ...
+}
+```
+
+- `videoUrl` が `.mp4` / `.webm` / `.ogg` の場合、作品カード上部で動画プレビューされます
+- YouTube などの外部URLを入れた場合は、カード下部の `Video` リンクから開けます
+- 推奨サイズ: **横16:縦9**、長さは10〜30秒程度、音声なしまたはミュート前提がおすすめです
+- `thumbnail` も設定しておくと、動画の読み込み前ポスター画像として使われます
+
+---
+
+## 3. 作品を追加・編集する
 
 **ファイル:** `src/data/projects.ts`
 
@@ -57,6 +86,7 @@ export const projects: Project[] = [
     tech: ['Unity', 'C#', 'NavMesh'],  // ← 使用技術タグ（いくつでも）
     githubUrl: 'https://github.com/...',  // ← GitHubリンク（なければ '' のまま）
     demoUrl: '',                    // ← デモリンク（なければ '' のまま）
+    videoUrl: '',                   // ← デモ動画（なければ '' のまま）
   },
   // ↓ ここに { } を追加すると作品が増える
 ];
@@ -72,6 +102,7 @@ export const projects: Project[] = [
   description: 'どんなプロジェクトか説明。',
   tech: ['Unity', 'C#'],
   demoUrl: '',
+  videoUrl: '',
 },
 ```
 
@@ -83,7 +114,7 @@ export const projects: Project[] = [
 
 ---
 
-## 2. スキルを追加・編集する
+## 4. スキルを追加・編集する
 
 **ファイル:** `src/data/skills.ts`
 
@@ -119,7 +150,7 @@ skills: ['Unity', 'C#', 'Animator', 'NavMesh', 'Cinemachine', 'Shader Graph'],
 
 ---
 
-## 3. SNS・連絡先リンクを追加・編集する
+## 5. SNS・連絡先リンクを追加・編集する
 
 **ファイル:** `src/data/links.ts`
 
@@ -167,7 +198,7 @@ export const socialLinks: SocialLink[] = [
 
 ---
 
-## 4. 自己紹介文を編集する
+## 6. 自己紹介文を編集する
 
 **ファイル:** `src/sections/About.tsx`
 
@@ -192,7 +223,7 @@ const profileData = [
 
 ---
 
-## 5. 動作確認の方法
+## 7. 動作確認の方法
 
 編集したら以下を実行してエラーがないか確認してください。
 
@@ -206,7 +237,7 @@ npm run build
 
 ---
 
-## 6. 本番デプロイ前の確認事項
+## 8. 本番デプロイ前の確認事項
 
 - `src/components/game/BossGame.tsx` の `BAR_HP` が `200` になっているか確認
   （開発中は `5` にしてあることがある）
@@ -218,7 +249,7 @@ const BAR_HP = 200;  // ← 本番は200
 
 ---
 
-## 7. よくある質問
+## 9. よくある質問
 
 **Q. 変更が画面に反映されない**
 → `npm run dev` を再起動してみてください

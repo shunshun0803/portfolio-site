@@ -9,41 +9,38 @@ export function Contact() {
   const { ref, isVisible } = useIntersectionObserver();
 
   return (
-    <section id="contact" className="py-24 px-6">
+    <section id="contact" className="py-24 px-6 grid-bg">
       <div className="max-w-3xl mx-auto text-center">
         <div
           ref={ref}
           className={`transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
-          <SectionTitle
-            label="// 05.contact"
-            title="お問い合わせ"
-          />
+          <SectionTitle label="// 05.contact" title="お問い合わせ" />
 
-          <GlassCard glowColor="cyan" className="p-8 mb-6">
-            <p className="text-[#475569] text-sm leading-relaxed mb-8">
+          <GlassCard accent="yellow" className="p-8 mb-6">
+            <p className="font-dot text-[#B7B29A] text-sm leading-relaxed mb-8">
               現在、ゲーム開発・クライアントエンジニアリング分野での
-              <span className="text-[#0EA5E9] font-semibold">インターンシップやアルバイトの機会</span>を探しています。
+              <span className="text-[#FFD200] font-bold">インターンシップやアルバイトの機会</span>を探しています。
               プロジェクトについてのご相談・質問・ご連絡など、どんなことでもお待ちしています。
             </p>
 
             <a
               href={emailLink.href}
-              className="inline-flex items-center gap-3 px-6 py-4 rounded-xl border transition-all duration-200 hover:scale-105 hover:shadow-md"
-              style={{ borderColor: `${emailLink.color}40`, backgroundColor: emailLink.bg }}
+              className="pixel-btn inline-flex items-center gap-3 px-6 py-4 text-black"
+              style={{ background: 'var(--yellow)', borderColor: '#000' }}
             >
-              <span className="text-2xl" style={{ color: emailLink.color }}>{emailLink.icon}</span>
+              <span className="text-2xl">{emailLink.icon}</span>
               <div className="text-left">
-                <div className="text-xs text-[#64748B] font-mono mb-0.5">{emailLink.label}</div>
-                <div className="text-[#0F172A] text-sm font-medium">{emailLink.value}</div>
+                <div className="font-pixel text-[8px] mb-1">{emailLink.label}</div>
+                <div className="font-dot text-sm font-bold">{emailLink.value}</div>
               </div>
-              <span className="ml-4 text-sm" style={{ color: emailLink.color }}>↗</span>
+              <span className="ml-4 text-sm">↗</span>
             </a>
           </GlassCard>
 
           {/* Footer */}
-          <div className="text-[#94A3B8] text-xs font-mono">
-            <span>shunshun0803</span>
+          <div className="font-pixel text-[8px] text-[#6b6a58]">
+            <span>SHUNSHUN0803</span>
             <span className="mx-2">·</span>
             <span>{new Date().getFullYear()}</span>
           </div>

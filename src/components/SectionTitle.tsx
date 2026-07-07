@@ -7,21 +7,25 @@ interface SectionTitleProps {
 export function SectionTitle({ label, title, subtitle }: SectionTitleProps) {
   return (
     <div className="mb-12 text-center">
-      <span className="text-xs font-mono tracking-[0.3em] text-[#0EA5E9] uppercase">
+      <span className="font-pixel text-[10px] tracking-[0.15em] text-[#FFD200] uppercase text-glow-yellow">
         {label}
       </span>
-      <h2 className="mt-2 text-3xl md:text-4xl font-bold text-[#0F172A]">
-        {title}
+      <h2 className="mt-4 font-dot text-3xl md:text-4xl font-bold text-[#F5F1E0] flex items-center justify-center gap-3">
+        <span className="text-[#FF7A18]">▶</span>
+        <span>{title}</span>
       </h2>
       {subtitle && (
-        <p className="mt-3 text-[#475569] max-w-xl mx-auto text-sm leading-relaxed">
+        <p className="mt-3 text-[#B7B29A] max-w-xl mx-auto text-sm leading-relaxed">
           {subtitle}
         </p>
       )}
-      <div className="mt-4 flex items-center justify-center gap-2">
-        <div className="h-px w-16 bg-gradient-to-r from-transparent to-[#38BDF8]" />
-        <div className="w-1.5 h-1.5 rounded-full bg-[#38BDF8]" />
-        <div className="h-px w-16 bg-gradient-to-l from-transparent to-[#38BDF8]" />
+      {/* pixel underline: blocky dashes */}
+      <div className="mt-5 flex items-center justify-center gap-1">
+        <span className="inline-block w-2 h-2" style={{ background: 'var(--orange)' }} />
+        <span className="inline-block w-14 h-1" style={{ background: 'var(--yellow)' }} />
+        <span className="inline-block w-2 h-2" style={{ background: 'var(--yellow)' }} />
+        <span className="inline-block w-14 h-1" style={{ background: 'var(--yellow)' }} />
+        <span className="inline-block w-2 h-2" style={{ background: 'var(--orange)' }} />
       </div>
     </div>
   );

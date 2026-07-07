@@ -13,18 +13,19 @@ export function PortalOverlay({ onComplete }: PortalOverlayProps) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden"
-      style={{ background: 'rgba(2,6,14,0.97)', animation: 'portalFadeIn 0.4s ease-out' }}
+      style={{ background: 'rgba(5,5,12,0.97)', animation: 'portalFadeIn 0.4s steps(2)' }}
     >
-      {/* Expanding rings */}
+      {/* Expanding square rings (pixel warp) */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         {[0, 0.6, 1.2].map((delay) => (
           <div
             key={delay}
-            className="absolute rounded-full border border-cyan-400/50"
+            className="absolute"
             style={{
               width: 200,
               height: 200,
-              animation: `ringExpand 2.5s ease-out ${delay}s infinite`,
+              border: '4px solid #FFD200',
+              animation: `ringExpand 2.5s steps(12) ${delay}s infinite`,
             }}
           />
         ))}
@@ -33,18 +34,14 @@ export function PortalOverlay({ onComplete }: PortalOverlayProps) {
       {/* Text */}
       <div className="text-center relative z-10">
         <div
-          className="text-4xl md:text-6xl font-bold font-mono mb-3"
-          style={{
-            color: '#38BDF8',
-            textShadow: '0 0 40px #38BDF8, 0 0 80px #38BDF8',
-            animation: 'portalPulse 0.9s ease-in-out infinite alternate',
-          }}
+          className="font-pixel text-2xl md:text-4xl mb-4 text-glow-yellow"
+          style={{ color: '#FFD200', animation: 'portalPulse 0.4s steps(1) infinite alternate' }}
         >
           PORTAL OPEN
         </div>
         <div
-          className="text-[#A855F7] font-mono text-sm tracking-[0.3em]"
-          style={{ animation: 'portalPulse 1.3s ease-in-out infinite alternate' }}
+          className="font-pixel text-[10px] text-[#FF7A18] tracking-[0.3em]"
+          style={{ animation: 'portalPulse 0.6s steps(1) infinite alternate' }}
         >
           制作物宇宙へ転送中...
         </div>
@@ -52,7 +49,7 @@ export function PortalOverlay({ onComplete }: PortalOverlayProps) {
 
       <style>{`
         @keyframes portalFadeIn { from { opacity: 0 } to { opacity: 1 } }
-        @keyframes portalPulse  { from { opacity: 0.6 } to { opacity: 1 } }
+        @keyframes portalPulse  { from { opacity: 0.5 } to { opacity: 1 } }
         @keyframes ringExpand {
           0%   { transform: scale(0.3); opacity: 0.9; }
           100% { transform: scale(5);   opacity: 0; }

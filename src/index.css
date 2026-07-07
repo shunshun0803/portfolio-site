@@ -1,15 +1,42 @@
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────
+   Retro pixel arcade theme — black × yellow/orange
+   ───────────────────────────────────────────── */
+
+:root {
+  --bg:      #0a0a12;
+  --bg2:     #12121e;
+  --panel:   #171722;
+  --panel-2: #1f1f2e;
+
+  --yellow:  #FFD200;
+  --orange:  #FF7A18;
+  --red:     #FF4040;
+  --green:   #46E86A;
+
+  --ink:     #F5F1E0;
+  --ink-dim: #B7B29A;
+  --line:    #2c2c40;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
   }
 
   body {
-    background-color: #F8FAFC;
-    color: #0F172A;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: 'DotGothic16', 'Inter', system-ui, -apple-system, sans-serif;
     margin: 0;
+    /* faint arcade dot grid over the black base */
+    background-image:
+      radial-gradient(circle at 50% 0%, rgba(255, 210, 0, 0.05) 0%, transparent 55%),
+      linear-gradient(rgba(255, 210, 0, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 210, 0, 0.035) 1px, transparent 1px);
+    background-size: 100% 100%, 32px 32px, 32px 32px;
+    background-attachment: fixed;
   }
 
   * {
@@ -20,65 +47,135 @@
     width: 100%;
     min-height: 100vh;
   }
+
+  ::selection {
+    background: var(--yellow);
+    color: #000;
+  }
 }
 
 @layer utilities {
-  .glow-cyan {
-    box-shadow: 0 0 20px rgba(56, 189, 248, 0.35), 0 0 40px rgba(56, 189, 248, 0.12);
+  /* Fonts */
+  .font-pixel { font-family: 'Press Start 2P', 'DotGothic16', monospace; }
+  .font-dot   { font-family: 'DotGothic16', system-ui, sans-serif; }
+
+  /* Pixel-perfect image scaling for sprites/canvas */
+  .pixelated { image-rendering: pixelated; }
+
+  /* Solid dark panel with chunky border + hard (blur-free) drop shadow */
+  .pixel-panel {
+    background: var(--panel);
+    border: 3px solid var(--yellow);
+    border-radius: 0;
+    box-shadow: 6px 6px 0 #000;
+  }
+  .pixel-panel-orange { border-color: var(--orange); }
+  .pixel-panel-dim    { border-color: var(--line); box-shadow: 4px 4px 0 #000; }
+
+  /* Hard-shadow "lift" used on hover */
+  .pixel-lift {
+    transition: transform 0.12s steps(2), box-shadow 0.12s steps(2);
+  }
+  .pixel-lift:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 9px 9px 0 #000;
   }
 
-  .glow-purple {
-    box-shadow: 0 0 20px rgba(168, 85, 247, 0.35), 0 0 40px rgba(168, 85, 247, 0.12);
+  /* Pixel button — offset shadow that collapses on press */
+  .pixel-btn {
+    border-radius: 0;
+    border: 3px solid #000;
+    box-shadow: 4px 4px 0 #000;
+    transition: transform 0.08s steps(2), box-shadow 0.08s steps(2);
+    image-rendering: pixelated;
   }
+  .pixel-btn:hover   { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 #000; }
+  .pixel-btn:active  { transform: translate(4px, 4px);   box-shadow: 0 0 0 #000; }
 
-  .text-glow-cyan {
-    text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
-  }
+  /* Glows recolored to arcade palette */
+  .glow-yellow { box-shadow: 0 0 0 3px var(--yellow), 6px 6px 0 #000, 0 0 22px rgba(255,210,0,0.35); }
+  .glow-orange { box-shadow: 0 0 0 3px var(--orange), 6px 6px 0 #000, 0 0 22px rgba(255,122,24,0.35); }
+  .text-glow-yellow { text-shadow: 0 0 8px rgba(255, 210, 0, 0.55); }
+  .text-glow-orange { text-shadow: 0 0 8px rgba(255, 122, 24, 0.55); }
 
-  .glass {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(0, 0, 0, 0.07);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-  }
-
+  /* Dark grid background for sections */
   .grid-bg {
     background-image:
-      linear-gradient(rgba(148, 163, 184, 0.18) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(148, 163, 184, 0.18) 1px, transparent 1px);
-    background-size: 60px 60px;
+      linear-gradient(rgba(255, 210, 0, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 210, 0, 0.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* Local CRT scanlines for an arcade cabinet screen (absolute, inside a relative box) */
+  .screen-scanlines {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse at center, transparent 58%, rgba(0, 0, 0, 0.5) 100%),
+      repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0px,
+        rgba(0, 0, 0, 0) 2px,
+        rgba(0, 0, 0, 0.22) 3px,
+        rgba(0, 0, 0, 0.22) 3px
+      );
+  }
+
+  /* Marquee sign: lit top edge highlight to sell the illuminated look */
+  .marquee-lit {
+    box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.45), inset 0 -3px 0 rgba(0, 0, 0, 0.35);
+  }
+
+  /* CRT scanlines overlay (place over full screen, pointer-events none) */
+  .scanlines::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0px,
+      rgba(0, 0, 0, 0) 2px,
+      rgba(0, 0, 0, 0.18) 3px,
+      rgba(0, 0, 0, 0.18) 3px
+    );
+    mix-blend-mode: multiply;
+  }
+  .scanlines::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9998;
+    background: radial-gradient(ellipse at center, transparent 62%, rgba(0, 0, 0, 0.45) 100%);
   }
 }
 
+/* ── Keyframes ─────────────────────────────── */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  50%      { transform: translateY(-6px); }
 }
 
+/* stepped pulse = blinky arcade text */
 @keyframes pulse-glow {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0.35; }
 }
 
-.animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
+@keyframes blink {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
 }
 
-.animate-float {
-  animation: float 4s ease-in-out infinite;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
+.animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+.animate-float      { animation: float 1.4s steps(3) infinite; }
+.animate-pulse-glow { animation: pulse-glow 1s steps(1) infinite; }
+.animate-blink      { animation: blink 1s steps(1) infinite; }

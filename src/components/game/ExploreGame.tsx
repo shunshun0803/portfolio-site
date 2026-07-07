@@ -40,7 +40,7 @@ const worksPlanets: PlanetDef[] = projects.map((_, i) => {
   return {
     id: `works-${i}` as PlanetId,
     label: `PROJ.${ROMAN[i] ?? String(i + 1)}`,
-    number: '02',
+    number: '01',
     color: '#F97316',
     wx: Math.round(2080 + t * 500),
     wy: Math.round(380  + t * 680),
@@ -50,9 +50,9 @@ const worksPlanets: PlanetDef[] = projects.map((_, i) => {
 });
 
 const PLANET_DEFS: PlanetDef[] = [
-  { id:'about',    label:'ABOUT',    number:'01', color:'#38BDF8', wx: 480, wy: 680, radius:70 },
-  { id:'research', label:'RESEARCH', number:'04', color:'#22C55E', wx: 560, wy:1380, radius:66 },
-  { id:'skills',   label:'SKILLS',   number:'03', color:'#A855F7', wx:1480, wy:1680, radius:62 },
+  { id:'about',    label:'ABOUT',    number:'03', color:'#38BDF8', wx: 480, wy: 680, radius:70 },
+  { id:'research', label:'RESEARCH', number:'02', color:'#22C55E', wx: 560, wy:1380, radius:66 },
+  { id:'skills',   label:'SKILLS',   number:'04', color:'#A855F7', wx:1480, wy:1680, radius:62 },
   ...worksPlanets,
   { id:'contact',  label:'CONTACT',  number:'05', color:'#EC4899', wx:2620, wy:1640, radius:56 },
 ];
@@ -65,8 +65,8 @@ const SKILL_COLORS: Record<string, string> = {
   cyan:'#0EA5E9', purple:'#A855F7', green:'#16A34A', orange:'#EA580C',
 };
 
-const SHIP_COLORS      = ['#38BDF8', '#A855F7', '#FFD700'];
-const SHIP_NAMES       = ['CYAN', 'PURPLE', 'GOLD'];
+const SHIP_COLORS      = ['#FFD200', '#FF7A18', '#FFC400'];
+const SHIP_NAMES       = ['YELLOW', 'ORANGE', 'GOLD'];
 const SHIP_THRESHOLDS  = [0, 10, 30];
 
 const CODE_SNIPPETS = [
@@ -237,15 +237,17 @@ export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
       }
 
       // ── Draw ──────────────────────────────────────────────────────
-      ctx.fillStyle='#04080f'; ctx.fillRect(0,0,W,H);
+      ctx.fillStyle='#05050c'; ctx.fillRect(0,0,W,H);
 
       ctx.save();
       ctx.translate(W/2 - cam.x, H/2 - cam.y);
 
-      // Stars
+      // Stars (pixel)
       stars.forEach(s => {
-        ctx.globalAlpha=s.a; ctx.fillStyle='#ffffff';
-        ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=s.a;
+        ctx.fillStyle=s.r>1?'#FFD200':'#ffffff';
+        const sz=s.r>1?2:1;
+        ctx.fillRect(s.x|0,s.y|0,sz,sz);
       });
       ctx.globalAlpha=1;
 
@@ -267,16 +269,16 @@ export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
 
         // Gradient trail
         const grd = ctx.createLinearGradient(s.wx, s.wy, s.wx-nx*tLen, s.wy-ny*tLen);
-        grd.addColorStop(0, `rgba(56,189,248,${alpha})`);
-        grd.addColorStop(1, 'rgba(56,189,248,0)');
+        grd.addColorStop(0, `rgba(255,210,0,${alpha})`);
+        grd.addColorStop(1, 'rgba(255,210,0,0)');
         ctx.strokeStyle=grd; ctx.lineWidth=close?2:1.2;
-        ctx.shadowColor='#38BDF8'; ctx.shadowBlur=close?12:5;
+        ctx.shadowColor='#FFD200'; ctx.shadowBlur=close?12:5;
         ctx.beginPath(); ctx.moveTo(s.wx,s.wy); ctx.lineTo(s.wx-nx*tLen, s.wy-ny*tLen); ctx.stroke();
         ctx.shadowBlur=0;
 
         // Text at head
         ctx.globalAlpha=alpha*0.95;
-        ctx.font='10px monospace'; ctx.fillStyle='#38BDF8';
+        ctx.font='10px monospace'; ctx.fillStyle='#FFD200';
         ctx.fillText(s.text, s.wx+3, s.wy-2);
         ctx.globalAlpha=1;
       });
@@ -438,7 +440,7 @@ export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
   const worksIdx   = landedPlanetId?.startsWith('works-') ? parseInt(landedPlanetId.slice(6)) : -1;
   const project    = worksIdx>=0 ? projects[worksIdx]??null : null;
   const panelTitle = project ? project.title : (landedPlanetId ? SECTION_TITLES[landedPlanetId]??'' : '');
-  const panelNum   = landedDef ? (worksIdx>=0 ? `02-${ROMAN[worksIdx] ?? String(worksIdx+1)}` : landedDef.number) : '';
+  const panelNum   = landedDef ? (worksIdx>=0 ? `01-${ROMAN[worksIdx] ?? String(worksIdx+1)}` : landedDef.number) : '';
 
   const formatTime = (frames: number) => {
     const s=Math.floor(frames/60), m=Math.floor(s/60);
@@ -451,7 +453,7 @@ export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
   const show = (i: number) => i < revealCount;
 
   return (
-    <div className="fixed inset-0 z-50" style={{ background:'#04080f' }}>
+    <div className="fixed inset-0 z-50" style={{ background:'#05050c' }}>
       <canvas ref={canvasRef} style={{ display:'block', width:'100%', height:'100%' }} />
 
       {/* Top hint */}
@@ -493,7 +495,7 @@ export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
                 &nbsp;·&nbsp;BOMB&nbsp;<span className="text-white">{bossStats.bombsUsed}</span></div>
               {shipTier<2 && (
                 <div className="text-[#334155]">
-                  {shipTier===0 ? `${10-bossStats.graze}G → PURPLE` : `${30-bossStats.graze}G → GOLD`}
+                  {shipTier===0 ? `${10-bossStats.graze}G → ORANGE` : `${30-bossStats.graze}G → GOLD`}
                 </div>
               )}
             </div>
@@ -508,7 +510,7 @@ export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 pointer-events-none"
             style={{ animation:'explFadeIn .2s ease-out' }}>
             <div className="text-xs font-mono px-5 py-2 rounded-full border"
-              style={{ color:def.color, borderColor:def.color+'55', background:'#04080fCC' }}>
+              style={{ color:def.color, borderColor:def.color+'55', background:'#05050cCC' }}>
               [ENTER]&nbsp;&nbsp;{def.label} に着陸
             </div>
           </div>
@@ -599,7 +601,7 @@ export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
                     ))}
                   </div>
                 )}
-                {show(3) && (project.githubUrl||project.demoUrl) && (
+                {show(3) && (project.githubUrl||project.demoUrl||project.videoUrl) && (
                   <div className="flex gap-4" style={{ animation:'explFadeIn .3s ease-out' }}>
                     {project.githubUrl&&project.githubUrl.length>0 && (
                       <a href={project.githubUrl} target="_blank" rel="noopener noreferrer"
@@ -608,6 +610,10 @@ export function ExploreGame({ onExit, bossStats }: ExploreGameProps) {
                     {project.demoUrl&&project.demoUrl.length>0 && (
                       <a href={project.demoUrl} target="_blank" rel="noopener noreferrer"
                         className="text-xs font-mono text-[#A855F7] hover:underline">Demo ↗</a>
+                    )}
+                    {project.videoUrl&&project.videoUrl.length>0 && (
+                      <a href={project.videoUrl} target="_blank" rel="noopener noreferrer"
+                        className="text-xs font-mono text-[#38BDF8] hover:underline">Video ↗</a>
                     )}
                   </div>
                 )}

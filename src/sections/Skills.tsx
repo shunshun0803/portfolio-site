@@ -4,18 +4,18 @@ import { GlassCard } from '../components/GlassCard';
 import { SkillTag } from '../components/SkillTag';
 import { skillCategories } from '../data/skills';
 
-const categoryGlowMap = {
-  cyan: 'cyan' as const,
-  purple: 'purple' as const,
-  green: 'none' as const,
-  orange: 'none' as const,
+// Map the data's color names onto the arcade two-tone palette.
+const accentMap: Record<string, 'yellow' | 'orange'> = {
+  cyan: 'yellow',
+  green: 'yellow',
+  purple: 'orange',
+  orange: 'orange',
 };
-
-const categoryBorderMap: Record<string, string> = {
-  cyan: '#0EA5E9',
-  purple: '#A855F7',
-  green: '#16A34A',
-  orange: '#EA580C',
+const hexMap: Record<string, string> = {
+  cyan: '#FFD200',
+  green: '#FFD200',
+  purple: '#FF7A18',
+  orange: '#FF7A18',
 };
 
 export function Skills() {
@@ -28,28 +28,14 @@ export function Skills() {
           ref={ref}
           className={`transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
-          <SectionTitle
-            label="// 03.skills"
-            title="スキル"
-            // subtitle="実際に使用している技術・ツール一覧。ゲーム開発に関連するスキルを中心に、経験のある技術スタックを示しています。"
-          />
+          <SectionTitle label="// 04.skills" title="スキル" />
 
           <div className="grid sm:grid-cols-2 gap-5">
             {skillCategories.map((cat) => (
-              <GlassCard
-                key={cat.category}
-                glowColor={categoryGlowMap[cat.color]}
-                className="p-5"
-              >
+              <GlassCard key={cat.category} accent={accentMap[cat.color]} className="p-5">
                 <div className="flex items-center gap-2 mb-4">
-                  <div
-                    className="w-1 h-4 rounded-full"
-                    style={{ backgroundColor: categoryBorderMap[cat.color] }}
-                  />
-                  <h3
-                    className="text-sm font-mono font-semibold"
-                    style={{ color: categoryBorderMap[cat.color] }}
-                  >
+                  <div className="w-2 h-4" style={{ backgroundColor: hexMap[cat.color] }} />
+                  <h3 className="font-pixel text-[10px]" style={{ color: hexMap[cat.color] }}>
                     {cat.category}
                   </h3>
                 </div>

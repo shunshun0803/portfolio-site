@@ -5,17 +5,20 @@ interface SkillTagProps {
   color?: TagColor;
 }
 
+// Two-tone arcade palette: everything reads as yellow or orange on black.
 const colorMap: Record<TagColor, string> = {
-  cyan: 'border-[#38BDF8]/50 text-[#0369A1] bg-[#E0F2FE] hover:bg-[#BAE6FD]',
-  purple: 'border-[#A855F7]/50 text-[#7E22CE] bg-[#F3E8FF] hover:bg-[#E9D5FF]',
-  green: 'border-[#22C55E]/50 text-[#15803D] bg-[#DCFCE7] hover:bg-[#BBF7D0]',
-  orange: 'border-[#F97316]/50 text-[#C2410C] bg-[#FFF7ED] hover:bg-[#FED7AA]',
+  cyan: '#FFD200',
+  green: '#FFD200',
+  purple: '#FF7A18',
+  orange: '#FF7A18',
 };
 
 export function SkillTag({ label, color = 'cyan' }: SkillTagProps) {
+  const c = colorMap[color];
   return (
     <span
-      className={`inline-block px-3 py-1.5 rounded-md border text-xs font-mono tracking-wide transition-all duration-200 cursor-default ${colorMap[color]}`}
+      className="inline-block px-2.5 py-1 border-2 text-[11px] font-dot tracking-wide transition-transform duration-150 cursor-default hover:-translate-y-0.5"
+      style={{ color: c, borderColor: c, background: 'rgba(0,0,0,0.35)', boxShadow: '2px 2px 0 #000' }}
     >
       {label}
     </span>

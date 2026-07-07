@@ -17,8 +17,8 @@ function Particles() {
     const velocities = new Float32Array(COUNT * 2);
     const colors = new Float32Array(COUNT * 3);
     const linePositions = new Float32Array(MAX_LINES * 2 * 3);
-    const cyan = new THREE.Color('#38BDF8');
-    const purple = new THREE.Color('#A855F7');
+    const cyan = new THREE.Color('#FFD200');
+    const purple = new THREE.Color('#FF7A18');
 
     for (let i = 0; i < COUNT; i++) {
       positions[i * 3]     = (Math.random() - 0.5) * 12;
@@ -131,7 +131,7 @@ function Particles() {
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[linePositions, 3]} />
         </bufferGeometry>
-        <lineBasicMaterial color="#38BDF8" transparent opacity={0.12} />
+        <lineBasicMaterial color="#FFD200" transparent opacity={0.1} />
       </lineSegments>
     </>
   );

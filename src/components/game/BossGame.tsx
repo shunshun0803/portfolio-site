@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { INVADER_A, INVADER_B, SHIP, drawSpriteCentered } from '../../utils/sprites';
 
 export interface BossStats {
   graze: number;
@@ -29,7 +30,7 @@ const INVINCIBLE_F = 120;
 const BOMB_INV_F   = 180;
 
 const PHASE_LABELS = ['PHASE I', 'PHASE II', 'PHASE III'];
-const PHASE_COLORS = ['#38BDF8', '#A855F7', '#EF4444'];
+const PHASE_COLORS = ['#FFD200', '#FF7A18', '#FF4040'];
 
 type GState  = 'playing' | 'gameover' | 'victory';
 type BType   = 'aimed' | 'circle' | 'spiral' | 'random' | 'hunter';
@@ -42,7 +43,7 @@ interface Star     { x: number; y: number; r: number; a: number }
 interface Opt      { x: number; y: number }
 
 const B_COLORS: Record<BType, string> = {
-  aimed: '#FF7043', circle: '#FF69B4', spiral: '#FFD700', random: '#FF3366', hunter: '#88FF44',
+  aimed: '#FF7A18', circle: '#FFD200', spiral: '#FFC400', random: '#FF4040', hunter: '#46E86A',
 };
 
 // ── コンポーネント ────────────────────────────────────
@@ -215,7 +216,7 @@ export function BossGame({ onBossDefeated, onExit, onRetry }: BossGameProps) {
         boss.hitFlash = 15;
       }
       burst(player.x, player.y, '#ffffff', 30, 6);
-      burst(player.x, player.y, '#38BDF8', 20, 4);
+      burst(player.x, player.y, '#FFD200', 20, 4);
     };
 
     // ── 入力 ──
@@ -457,9 +458,9 @@ export function BossGame({ onBossDefeated, onExit, onRetry }: BossGameProps) {
                   boss.defeated=true; gs='victory'; clearFrame=frame;
                   bBullets.forEach(b2=>{b2.active=false;});
                   pBullets.forEach(b2=>{b2.active=false;});
-                  burst(boss.x,boss.y,'#ffffff',90,9); burst(boss.x,boss.y,'#FFD700',70,8);
-                  burst(boss.x,boss.y,'#A855F7',60,7); burst(boss.x,boss.y,'#38BDF8',60,7);
-                  burst(boss.x,boss.y,'#EF4444',50,6); burst(boss.x,boss.y,'#FF69B4',40,5);
+                  burst(boss.x,boss.y,'#ffffff',90,9); burst(boss.x,boss.y,'#FFD200',70,8);
+                  burst(boss.x,boss.y,'#FF7A18',60,7); burst(boss.x,boss.y,'#FFC400',60,7);
+                  burst(boss.x,boss.y,'#FF4040',50,6); burst(boss.x,boss.y,'#46E86A',40,5);
                   setGstate('victory');
                 }
               }
@@ -491,7 +492,7 @@ export function BossGame({ onBossDefeated, onExit, onRetry }: BossGameProps) {
               player.lives=Math.max(0,player.lives-1);
               player.inv=INVINCIBLE_F;
               player.bombs=Math.min(2,player.bombs+1);  // ミス時ボム補充
-              burst(player.x,player.y,'#FF6B6B',14);
+              burst(player.x,player.y,'#FF4040',14);
               if (player.lives<=0) { gs='gameover'; setGstate('gameover'); }
             }
           }
@@ -508,12 +509,12 @@ export function BossGame({ onBossDefeated, onExit, onRetry }: BossGameProps) {
         if (vt<115&&vt%7===0) {
           const ex=boss.x+(Math.random()-0.5)*BOSS_R*2.5;
           const ey=boss.y+(Math.random()-0.5)*BOSS_R*2.5;
-          const cs=['#38BDF8','#A855F7','#EF4444','#FFD700','#ffffff','#FF69B4'];
+          const cs=['#FFD200','#FF7A18','#FF4040','#FFC400','#ffffff','#46E86A'];
           burst(ex,ey,cs[Math.floor(Math.random()*cs.length)],28,5);
         }
         if (vt===15)  { burst(boss.x,boss.y,'#ffffff',90,9); }
-        if (vt===40)  { burst(boss.x,boss.y,'#FFD700',70,8); burst(boss.x,boss.y,'#A855F7',50,6); }
-        if (vt===70)  { burst(boss.x,boss.y,'#38BDF8',70,8); burst(boss.x,boss.y,'#EF4444',60,7); }
+        if (vt===40)  { burst(boss.x,boss.y,'#FFD200',70,8); burst(boss.x,boss.y,'#FF7A18',50,6); }
+        if (vt===70)  { burst(boss.x,boss.y,'#FFC400',70,8); burst(boss.x,boss.y,'#FF4040',60,7); }
         if (vt===280) setTimeout(() => onBossDefeated({ graze: grazeCount, clearFrames: clearFrame, bombsUsed }), 0);
       }
 
@@ -531,189 +532,140 @@ export function BossGame({ onBossDefeated, onExit, onRetry }: BossGameProps) {
         ctx.translate((Math.random()-0.5)*shake,(Math.random()-0.5)*shake);
       }
 
-      ctx.fillStyle='#04080f'; ctx.fillRect(0,0,W,H);
+      ctx.fillStyle='#05050c'; ctx.fillRect(0,0,W,H);
 
       if (ai.flashTimer>0) {
-        ctx.globalAlpha=ai.flashTimer/12*0.35;
-        ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,W,H); ctx.globalAlpha=1;
+        ctx.globalAlpha=ai.flashTimer/12*0.3;
+        ctx.fillStyle='#FFD200'; ctx.fillRect(0,0,W,H); ctx.globalAlpha=1;
       }
 
       stars.forEach((s)=>{
-        ctx.globalAlpha=s.a; ctx.fillStyle='#ffffff';
-        ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+        ctx.globalAlpha=s.a;
+        ctx.fillStyle=s.r>1?'#FFD200':'#F5F1E0';
+        const sz=s.r>1?2:1;
+        ctx.fillRect(s.x|0,s.y|0,sz,sz);
       });
       ctx.globalAlpha=1;
 
       if (gs!=='gameover') {
         const ph=getPhase();
         const col=phColor(ph);
-        const plse=1+Math.sin(frame*0.05)*0.05;
 
-        // ── ボス ──
+        // ── ボス（ピクセル・インベーダー）──
         if (!boss.defeated) {
-          ctx.save();
-          ctx.translate(boss.x,boss.y); ctx.scale(boss.scale,boss.scale); ctx.translate(-boss.x,-boss.y);
-
-          const grad=ctx.createRadialGradient(boss.x,boss.y,BOSS_R*0.4,boss.x,boss.y,BOSS_R*3*plse);
-          grad.addColorStop(0,col+'55'); grad.addColorStop(1,'transparent');
-          ctx.fillStyle=grad;
-          ctx.beginPath(); ctx.arc(boss.x,boss.y,BOSS_R*3*plse,0,Math.PI*2); ctx.fill();
-
-          const fl=boss.hitFlash>0;
-          ctx.shadowColor=fl?'#ffffff':col; ctx.shadowBlur=fl?60:30;
-          ctx.fillStyle=fl?'#ffffff50':col+'28';
-          ctx.strokeStyle=fl?'#ffffff':col; ctx.lineWidth=fl?4:2.5;
-          ctx.beginPath(); ctx.arc(boss.x,boss.y,BOSS_R,0,Math.PI*2); ctx.fill(); ctx.stroke();
-          ctx.shadowBlur=0;
-
-          if (ph===1) {
-            ctx.save(); ctx.translate(boss.x,boss.y); ctx.rotate(frame*0.018);
-            ctx.strokeStyle=col+'70'; ctx.lineWidth=2;
-            ctx.beginPath(); ctx.ellipse(0,0,BOSS_R*1.5,BOSS_R*0.35,0,0,Math.PI*2); ctx.stroke();
-            ctx.restore();
-          } else if (ph===2) {
-            ctx.save(); ctx.translate(boss.x,boss.y); ctx.rotate(frame*0.026);
-            for (let i=0;i<6;i++) {
-              const a=(i/6)*Math.PI*2;
-              ctx.strokeStyle=col+'65'; ctx.lineWidth=1.5;
-              ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(Math.cos(a)*BOSS_R*0.75,Math.sin(a)*BOSS_R*0.75); ctx.stroke();
-            }
-            ctx.restore();
-          } else {
-            [{rot:frame*0.038,rx:BOSS_R*1.38,ry:BOSS_R*0.30},{rot:-frame*0.024,rx:BOSS_R*1.12,ry:BOSS_R*0.48}]
-              .forEach(({rot,rx,ry})=>{
-                ctx.save(); ctx.translate(boss.x,boss.y); ctx.rotate(rot);
-                ctx.strokeStyle=col+'82'; ctx.lineWidth=1.5;
-                ctx.beginPath(); ctx.ellipse(0,0,rx,ry,0,0,Math.PI*2); ctx.stroke(); ctx.restore();
-              });
-          }
+          const fl = boss.hitFlash>0;
+          const bodyCol = fl ? '#FFFFFF' : col;
+          const sprite = (frame%40<20) ? INVADER_A : INVADER_B;
+          const bp = Math.max(3, Math.round((BOSS_R*2*boss.scale) / INVADER_A[0].length));
           if (ai.pattern==='dash') {
-            ctx.shadowColor=col; ctx.shadowBlur=40;
-            ctx.strokeStyle=col+'80'; ctx.lineWidth=BOSS_R*0.5; ctx.lineCap='round';
-            ctx.beginPath(); ctx.moveTo(boss.x-ai.dashVx*3,boss.y-ai.dashVy*3); ctx.lineTo(boss.x,boss.y); ctx.stroke();
-            ctx.shadowBlur=0; ctx.lineCap='butt';
+            drawSpriteCentered(ctx, sprite, bp, boss.x-ai.dashVx*2, boss.y-ai.dashVy*2, col+'55');
           }
-          ctx.restore();
+          drawSpriteCentered(ctx, sprite, bp, boss.x, boss.y, bodyCol);
+          if (!fl && ph>=3) {
+            ctx.fillStyle='#FF4040';
+            ctx.fillRect(Math.round(boss.x-bp*2.5), Math.round(boss.y-bp*0.5), bp, bp);
+            ctx.fillRect(Math.round(boss.x+bp*1.5), Math.round(boss.y-bp*0.5), bp, bp);
+          }
         }
 
-        // ── ボス弾 ──
+        // ── ボス弾（ピクセル）──
         bBullets.forEach((b)=>{
           if (!b.active) return;
           const bc=B_COLORS[b.type];
-          const br=b.type==='aimed'?7:b.type==='hunter'?9:8;
-          ctx.shadowColor=bc; ctx.shadowBlur=br*1.8;
+          const br=b.type==='aimed'?3:b.type==='hunter'?5:4;
           ctx.fillStyle=bc;
-          ctx.beginPath(); ctx.arc(b.x,b.y,br,0,Math.PI*2); ctx.fill();
-          ctx.shadowBlur=0; ctx.fillStyle='#ffffff';
-          ctx.beginPath(); ctx.arc(b.x,b.y,br*0.42,0,Math.PI*2); ctx.fill();
+          ctx.fillRect((b.x-br)|0,(b.y-br)|0,br*2,br*2);
+          ctx.fillStyle='#ffffff';
+          ctx.fillRect((b.x-1)|0,(b.y-1)|0,2,2);
         });
 
-        // ── プレイヤー弾 ──
+        // ── プレイヤー弾（ピクセル）──
         pBullets.forEach((b)=>{
           if (!b.active) return;
-          const bc=b.homing?'#FFD700':'#38BDF8';
-          const sc=b.homing?'#FF8C00':'#ffffff';
-          ctx.shadowColor=sc; ctx.shadowBlur=10;
-          ctx.strokeStyle=sc; ctx.lineWidth=1.5;
-          ctx.beginPath(); ctx.moveTo(b.x,b.y); ctx.lineTo(b.x-b.vx*1.5,b.y-b.vy*1.5); ctx.stroke();
-          ctx.fillStyle=bc;
-          ctx.beginPath(); ctx.arc(b.x,b.y,P_BULLET_R,0,Math.PI*2); ctx.fill();
-          ctx.shadowBlur=0;
+          ctx.fillStyle=b.homing?'#FFC400':'#FFD200';
+          ctx.fillRect((b.x-1)|0,(b.y-6)|0,3,8);
         });
 
-        // ── オプション（子機） ──
+        // ── オプション（子機・ピクセル）──
         opts.forEach((opt)=>{
-          ctx.shadowColor='#38BDF8'; ctx.shadowBlur=18;
-          ctx.fillStyle='#38BDF8';
-          ctx.beginPath(); ctx.arc(opt.x,opt.y,5,0,Math.PI*2); ctx.fill();
-          ctx.shadowBlur=0;
-          ctx.strokeStyle='#7DD3FA88'; ctx.lineWidth=1;
-          ctx.beginPath(); ctx.arc(opt.x,opt.y,9,0,Math.PI*2); ctx.stroke();
+          ctx.fillStyle='#FF7A18';
+          ctx.fillRect((opt.x-3)|0,(opt.y-3)|0,6,6);
         });
 
-        // ── プレイヤー（宇宙船） ──
+        // ── プレイヤー（ピクセル自機）──
         if (player.inv===0||frame%6<3) {
-          ctx.save(); ctx.translate(player.x,player.y);
-          if (player.focused) {
-            ctx.strokeStyle='rgba(255,255,255,0.6)'; ctx.lineWidth=1;
-            ctx.beginPath(); ctx.arc(0,0,HITBOX_R+3,0,Math.PI*2); ctx.stroke();
+          const pp = Math.max(2, Math.round((PLAYER_R*2)/SHIP[0].length));
+          if (frame%6<3) {
+            ctx.fillStyle='#FF7A18';
+            ctx.fillRect(Math.round(player.x-pp), Math.round(player.y+PLAYER_R*0.6), pp*2, pp*2);
           }
-          ctx.shadowColor='#38BDF8'; ctx.shadowBlur=22;
-          ctx.fillStyle='#1E6A9E'; ctx.strokeStyle='#7DD3FA'; ctx.lineWidth=1;
-          ctx.beginPath(); ctx.moveTo(-5,-4); ctx.lineTo(-20,6); ctx.lineTo(-16,12); ctx.lineTo(-4,6); ctx.closePath(); ctx.fill(); ctx.stroke();
-          ctx.beginPath(); ctx.moveTo(5,-4); ctx.lineTo(20,6); ctx.lineTo(16,12); ctx.lineTo(4,6); ctx.closePath(); ctx.fill(); ctx.stroke();
-          ctx.fillStyle='#38BDF8'; ctx.strokeStyle='#ffffff'; ctx.lineWidth=1.5;
-          ctx.beginPath(); ctx.moveTo(0,-PLAYER_R); ctx.lineTo(PLAYER_R*0.6,PLAYER_R*0.7); ctx.lineTo(0,PLAYER_R*0.3); ctx.lineTo(-PLAYER_R*0.6,PLAYER_R*0.7); ctx.closePath(); ctx.fill(); ctx.stroke();
-          ctx.fillStyle='#ffffff'; ctx.shadowColor='#ffffff'; ctx.shadowBlur=8;
-          ctx.beginPath(); ctx.arc(0,-PLAYER_R*0.4,3,0,Math.PI*2); ctx.fill();
-          const flameH=5+Math.random()*4;
-          ctx.fillStyle='#FFD700'; ctx.shadowColor='#FF8C00'; ctx.shadowBlur=12;
-          ctx.beginPath(); ctx.moveTo(-5,PLAYER_R*0.7); ctx.lineTo(0,PLAYER_R*0.7+flameH); ctx.lineTo(5,PLAYER_R*0.7); ctx.closePath(); ctx.fill();
-          ctx.shadowBlur=0; ctx.restore();
+          drawSpriteCentered(ctx, SHIP, pp, player.x, player.y, '#F5F1E0');
+          ctx.fillStyle='#FFD200';
+          ctx.fillRect(Math.round(player.x-pp/2), Math.round(player.y-PLAYER_R), pp, pp*2);
+          if (player.focused) {
+            ctx.fillStyle='#FF4040';
+            ctx.fillRect(Math.round(player.x-2), Math.round(player.y-2), 4, 4);
+          }
         }
 
-        // ── ボム波紋エフェクト ──
+        // ── ボム波紋（ピクセル四角リング）──
         if (player.bombTimer>0) {
           const prog=1-player.bombTimer/60;
           const r=prog*Math.min(W,H)*0.6;
-          ctx.globalAlpha=(1-prog)*0.5;
-          ctx.strokeStyle='#ffffff'; ctx.lineWidth=3;
-          ctx.shadowColor='#38BDF8'; ctx.shadowBlur=20;
-          ctx.beginPath(); ctx.arc(player.x,player.y,r,0,Math.PI*2); ctx.stroke();
-          ctx.globalAlpha=1; ctx.shadowBlur=0;
+          ctx.globalAlpha=(1-prog)*0.6;
+          ctx.strokeStyle='#FFD200'; ctx.lineWidth=4;
+          ctx.strokeRect((player.x-r)|0,(player.y-r)|0,r*2,r*2);
+          ctx.globalAlpha=1;
         }
 
-        // ── フェーズ遷移テキスト ──
+        // ── フェーズ遷移テキスト（ピクセル）──
         if (boss.transitioning) {
           const t=boss.transTimer;
           if (t<20) {
             ctx.globalAlpha=(1-t/20)*0.85;
-            ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,W,H); ctx.globalAlpha=1;
+            ctx.fillStyle='#FFD200'; ctx.fillRect(0,0,W,H); ctx.globalAlpha=1;
           }
           if (t>=50&&t<110&&boss.bar+1<3) {
             const fadeIn=Math.min(1,(t-50)/15);
             const fadeOut=t>95?Math.max(0,(110-t)/15):1;
             const nc=PHASE_COLORS[boss.bar+1];
             ctx.globalAlpha=fadeIn*fadeOut;
-            ctx.font='bold 52px monospace'; ctx.textAlign='center';
-            ctx.fillStyle=nc; ctx.shadowColor=nc; ctx.shadowBlur=50;
-            ctx.fillText(PHASE_LABELS[boss.bar+1],W/2,H/2-10);
-            ctx.shadowBlur=0; ctx.globalAlpha=1; ctx.textAlign='left';
+            ctx.font='28px "Press Start 2P", monospace'; ctx.textAlign='center';
+            ctx.fillStyle=nc;
+            ctx.fillText(PHASE_LABELS[boss.bar+1],W/2,H/2);
+            ctx.globalAlpha=1; ctx.textAlign='left';
           }
         }
       }
 
-      // パーティクル
+      // パーティクル（ピクセル）
       particles.forEach((p)=>{
-        ctx.globalAlpha=p.life/p.maxLife;
-        ctx.shadowColor=p.color; ctx.shadowBlur=8;
+        ctx.globalAlpha=Math.max(0,p.life/p.maxLife);
         ctx.fillStyle=p.color;
-        ctx.beginPath(); ctx.arc(p.x,p.y,p.r*(p.life/p.maxLife),0,Math.PI*2); ctx.fill();
-        ctx.shadowBlur=0;
+        const sz=Math.max(2,(p.r*(p.life/p.maxLife))|0);
+        ctx.fillRect(p.x|0,p.y|0,sz,sz);
       });
       ctx.globalAlpha=1;
 
-      // ── 最終撃破演出 ──
+      // ── 最終撃破演出（ピクセル）──
       if (gs==='victory') {
         const vt=boss.victoryTimer;
         if (vt>45&&vt<165) {
-          const alpha=Math.min(0.5,(vt-45)/35*0.5);
-          const hue=(vt*3.5)%360;
+          const alpha=Math.min(0.45,(vt-45)/35*0.45);
           ctx.globalAlpha=alpha;
-          ctx.fillStyle=`hsl(${hue},100%,65%)`; ctx.fillRect(0,0,W,H); ctx.globalAlpha=1;
+          ctx.fillStyle=(vt%16<8)?'#FFD200':'#FF7A18'; ctx.fillRect(0,0,W,H); ctx.globalAlpha=1;
         }
         if (vt>65&&vt<255) {
           const fadeIn=Math.min(1,(vt-65)/25);
           const fadeOut=vt>230?Math.max(0,(255-vt)/25):1;
           ctx.globalAlpha=fadeIn*fadeOut;
-          ctx.font='bold 72px monospace'; ctx.textAlign='center';
-          ctx.shadowColor='#FFD700'; ctx.shadowBlur=60;
-          ctx.fillStyle='#ffffff'; ctx.fillText('YOU WIN',W/2,H/2);
-          ctx.shadowBlur=0; ctx.globalAlpha=1; ctx.textAlign='left';
+          ctx.font='44px "Press Start 2P", monospace'; ctx.textAlign='center';
+          ctx.fillStyle='#FFD200'; ctx.fillText('YOU WIN',W/2,H/2);
+          ctx.globalAlpha=1; ctx.textAlign='left';
         }
         if (vt>230) {
           ctx.globalAlpha=Math.min(1,(vt-230)/50);
-          ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,W,H); ctx.globalAlpha=1;
+          ctx.fillStyle='#FFD200'; ctx.fillRect(0,0,W,H); ctx.globalAlpha=1;
         }
       }
 
@@ -730,25 +682,27 @@ export function BossGame({ onBossDefeated, onExit, onRetry }: BossGameProps) {
     };
   }, [onBossDefeated, onExit]);
 
-  const barColors=['#38BDF8','#A855F7','#EF4444'];
+  const barColors=['#FFD200','#FF7A18','#FF4040'];
+  const SEGMENTS=20;
 
   return (
-    <div className="fixed inset-0 z-50" style={{background:'#04080f'}}>
+    <div className="fixed inset-0 z-50" style={{background:'#05050c'}}>
       <canvas ref={canvasRef} style={{display:'block'}} />
 
-      {/* HPゲージ */}
-      <div className="absolute top-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5" style={{width:'300px'}}>
-        <div className="text-[10px] font-mono text-white/40 tracking-widest text-center">BOSS</div>
-        <div className="relative w-full h-3 rounded-full bg-black/60 overflow-hidden border"
-          style={{borderColor:`${barColors[currentBar]}40`}}>
-          <div className="absolute inset-y-0 left-0 rounded-full transition-all duration-75"
-            style={{width:`${barHpPct}%`,background:`linear-gradient(90deg,${barColors[currentBar]},${barColors[currentBar]}88)`}} />
+      {/* HPゲージ（セグメント式） */}
+      <div className="absolute top-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2" style={{width:'320px'}}>
+        <div className="font-pixel text-[9px] text-[#FFD200] tracking-widest text-center">BOSS</div>
+        <div className="flex gap-0.5 w-full h-4 p-1" style={{background:'#000',border:'2px solid '+barColors[currentBar]}}>
+          {Array.from({length:SEGMENTS}).map((_,i)=>{
+            const on = (i/SEGMENTS)*100 < barHpPct;
+            return <div key={i} className="flex-1" style={{background:on?barColors[currentBar]:'#1a1a26'}} />;
+          })}
         </div>
         <div className="flex gap-2">
           {[0,1,2].map(i=>(
-            <div key={i} className="w-2 h-2 rounded-full transition-all duration-300" style={{
-              background:i<currentBar?barColors[i]+'50':i===currentBar?barColors[i]:'#1e293b',
-              boxShadow:i===currentBar?`0 0 6px ${barColors[i]}`:'none',
+            <div key={i} className="w-3 h-3" style={{
+              background:i<currentBar?barColors[i]+'55':i===currentBar?barColors[i]:'#1a1a26',
+              boxShadow:i===currentBar?'2px 2px 0 #000':'none',
             }}/>
           ))}
         </div>
@@ -756,57 +710,52 @@ export function BossGame({ onBossDefeated, onExit, onRetry }: BossGameProps) {
 
       {/* 残機 */}
       <div className="absolute bottom-6 left-6 flex items-center gap-2">
-        <span className="text-[10px] font-mono text-[#64748B]">LIVES</span>
+        <span className="font-pixel text-[8px] text-[#B7B29A]">LIVES</span>
         {[0,1,2].map((i)=>(
-          <div key={i} className="w-3 h-3 rounded-full" style={{
-            background:i<lives?'#38BDF8':'#1e293b',
-            boxShadow:i<lives?'0 0 8px #38BDF8':'none',
-          }}/>
+          <div key={i} className="w-3 h-3" style={{ background:i<lives?'#FFD200':'#1a1a26', boxShadow:i<lives?'2px 2px 0 #000':'none' }}/>
         ))}
       </div>
 
       {/* ボム */}
-      <div className="absolute bottom-6 left-36 flex items-center gap-2">
-        <span className="text-[10px] font-mono text-[#64748B]">BOMB</span>
+      <div className="absolute bottom-6 left-40 flex items-center gap-2">
+        <span className="font-pixel text-[8px] text-[#B7B29A]">BOMB</span>
         {[0,1].map((i)=>(
-          <div key={i} className="w-3 h-3 rounded-full" style={{
-            background:i<bombs?'#A855F7':'#1e293b',
-            boxShadow:i<bombs?'0 0 8px #A855F7':'none',
-          }}/>
+          <div key={i} className="w-3 h-3" style={{ background:i<bombs?'#FF7A18':'#1a1a26', boxShadow:i<bombs?'2px 2px 0 #000':'none' }}/>
         ))}
       </div>
 
       {/* GRAZEカウンター */}
       {graze>0&&(
         <div className="absolute bottom-6 right-6 text-right">
-          <div className="text-[10px] font-mono text-[#FFD700]/70">GRAZE</div>
-          <div className="text-lg font-bold font-mono" style={{color:'#FFD700',textShadow:'0 0 10px #FFD700'}}>{graze}</div>
+          <div className="font-pixel text-[8px] text-[#FFD200]/70">GRAZE</div>
+          <div className="font-pixel text-base text-[#FFD200]">{graze}</div>
         </div>
       )}
 
       {/* 操作説明 */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 pointer-events-none">
-        <div className="text-[10px] font-mono text-[#475569]">
-          WASD/矢印 移動 Shift 低速フォーカス Z ボム
+      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 pointer-events-none">
+        <div className="font-pixel text-[7px] text-[#6b6a58] tracking-wider">
+          WASD/ARROWS MOVE · SHIFT FOCUS · Z BOMB
         </div>
       </div>
 
       {/* 中断 */}
       <button onClick={onExit}
-        className="absolute top-5 right-5 text-[10px] font-mono text-[#475569] hover:text-white transition-colors px-2.5 py-1 border border-white/10 rounded bg-black/40">
+        className="pixel-btn absolute top-5 right-5 font-pixel text-[8px] text-[#FFD200] px-3 py-2"
+        style={{background:'var(--panel)',borderColor:'var(--yellow)'}}>
         ESC 中断
       </button>
 
       {/* ゲームオーバー */}
       {gstate==='gameover'&&(
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/75">
-          <div className="text-5xl font-bold font-mono text-red-400 mb-8" style={{textShadow:'0 0 40px #EF4444'}}>
+        <div className="absolute inset-0 flex flex-col items-center justify-center" style={{background:'rgba(5,5,12,0.85)'}}>
+          <div className="font-pixel text-3xl md:text-5xl text-[#FF4040] mb-10 animate-blink">
             GAME OVER
           </div>
-          <button onClick={onRetry} className="px-8 py-3 font-mono text-sm text-white border border-white/30 rounded hover:bg-white/10 transition-colors mb-3">
+          <button onClick={onRetry} className="pixel-btn font-pixel text-[10px] px-6 py-4 text-black mb-4" style={{background:'var(--yellow)'}}>
             再挑戦
           </button>
-          <button onClick={onExit} className="text-xs font-mono text-[#64748B] hover:text-white transition-colors">
+          <button onClick={onExit} className="font-pixel text-[8px] text-[#B7B29A] hover:text-[#FFD200] transition-colors">
             ポートフォリオに戻る
           </button>
         </div>

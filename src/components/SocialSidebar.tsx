@@ -15,23 +15,22 @@ export function SocialSidebar() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={link.label}
-            className="text-2xl w-11 h-11 flex items-center justify-center rounded-xl border transition-all duration-200 hover:scale-110"
+            className="text-xl w-11 h-11 flex items-center justify-center border-2 transition-transform duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5"
             style={{
-              color: link.color,
-              borderColor: `${link.color}40`,
-              backgroundColor: `${link.color}12`,
+              color: '#FFD200',
+              borderColor: '#FFD200',
+              background: 'rgba(0,0,0,0.5)',
+              boxShadow: '3px 3px 0 #000',
             }}
             onMouseEnter={(e) => {
               setHovered(link.label);
-              e.currentTarget.style.backgroundColor = `${link.color}28`;
-              e.currentTarget.style.borderColor = `${link.color}90`;
-              e.currentTarget.style.boxShadow = `0 0 12px ${link.color}55`;
+              e.currentTarget.style.background = '#FFD200';
+              e.currentTarget.style.color = '#000';
             }}
             onMouseLeave={(e) => {
               setHovered(null);
-              e.currentTarget.style.backgroundColor = `${link.color}12`;
-              e.currentTarget.style.borderColor = `${link.color}40`;
-              e.currentTarget.style.boxShadow = 'none';
+              e.currentTarget.style.background = 'rgba(0,0,0,0.5)';
+              e.currentTarget.style.color = '#FFD200';
             }}
           >
             {link.icon}
@@ -40,12 +39,12 @@ export function SocialSidebar() {
           {/* Tooltip */}
           {hovered === link.label && (
             <div
-              className="absolute left-14 whitespace-nowrap text-xs font-mono px-2.5 py-1 rounded-lg pointer-events-none"
+              className="absolute left-14 whitespace-nowrap text-[10px] font-pixel px-2.5 py-1.5 pointer-events-none"
               style={{
-                color: link.color,
-                background: `${link.color}18`,
-                border: `1px solid ${link.color}50`,
-                animation: 'sidebarFadeIn .15s ease-out',
+                color: '#000',
+                background: '#FFD200',
+                boxShadow: '2px 2px 0 #000',
+                animation: 'sidebarFadeIn .12s steps(2)',
               }}
             >
               {link.label}
@@ -53,7 +52,7 @@ export function SocialSidebar() {
           )}
         </div>
       ))}
-      <div className="w-px h-12 mt-1" style={{ background: 'linear-gradient(to bottom, #94A3B8, transparent)' }} />
+      <div className="w-1 h-12 mt-1" style={{ background: 'linear-gradient(to bottom, #FF7A18, transparent)' }} />
 
       <style>{`
         @keyframes sidebarFadeIn {

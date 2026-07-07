@@ -5,6 +5,8 @@ import kitchenChaosImg from './thumbnails/kitchenChaos.png'
 import littleAdventureImg from './thumbnails/little-adventure.png'
 import ticTacToeImg from './thumbnails/TicTacToeImg.png'
 import zankiBossBattleImg from './thumbnails/Zanki.png'
+import logicartaImg from './thumbnails/logicarta.png'
+import zombieShooterImg from './thumbnails/zombieShooter.jpg'
 
 export interface Project {
   id: string;
@@ -19,6 +21,26 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    id: 'ZombieShooter',
+    title: 'Zombie Shooter',
+    thumbnail: zombieShooterImg,
+    description:
+      '敵を撃ち落とし、1体でも突破されたらゲームオーバーというサバイバル・シューティングです。コンボや演出で「遊んでいて気持ちいい手応え」を出すことを目標に、UIの作り込みやDOTweenによるアニメーション演出にこだわって個人制作しました。',
+    tech: ['Unity', 'C#', 'UniTask', 'R3', 'VContainer'],
+    demoUrl: 'https://unityroom.com/games/shunshun0803_zombieshooter',
+    videoUrl: 'https://youtu.be/umT_MEtIvRU',
+  },
+  {
+    id: 'LOGICARTA',
+    title: 'LOGICARTA',
+    thumbnail: logicartaImg,
+    description:
+      ' Logicarta は、Unity 製のカード／デッキ構築要素を持つ戦略バトルゲームです。サモナー選択、グリッド上のユニット配置、敵ウェーブ、ショップ、報酬、アーティファクトなどを組み合わせたローグライト寄りの構成になっています。',
+    tech: ['Unity', 'C#', 'UniTask', 'R3', 'VContainer'],
+    demoUrl: 'https://unityroom.com/games/logicarta-demo',
+    videoUrl: 'https://youtu.be/bqfVnrwbkg4',
+  },
+  {
     id: 'zanki: Boss Battle',
     title: 'Zanki: Boss Battle',
     thumbnail: zankiBossBattleImg,
@@ -26,6 +48,7 @@ export const projects: Project[] = [
       '隻狼インスパイアのボスバトル3Dアクションゲームプロトタイプです。ボスAIにML-Agents（強化学習）を実装し、プレイヤーの行動パターンを学習しながら強くなる仕組みを自作しました。体幹崩壊・パリィ・コンボなどのシステムをMVP+TDD設計で実装し、スキルベースの緊張感ある戦闘体験を目指しました。',
     tech: ['Unity', 'C#', 'ML-Agents', 'UniTask', 'R3', 'VContainer'],
     demoUrl: 'https://unityroom.com/games/zanki_boss',
+    videoUrl: 'https://youtu.be/8jzUQTzkxY8',
   },
   {
     id: 'Tic-Tac-Toe',
@@ -35,6 +58,7 @@ export const projects: Project[] = [
       'Unityで制作した3D三目並べゲームです.対戦相手のAIにQ学習（強化学習）を実装し、対局を重ねるごとに強くなる仕組みを自作しました。',
     tech: ['Unity', 'C#', 'Q-Learning'],
     demoUrl: 'https://unityroom.com/games/tic-tac-toe-ai',
+    videoUrl: 'https://youtu.be/xzMpxUCaVlY',
   },
   {
     id: 'chronostep',
@@ -44,6 +68,7 @@ export const projects: Project[] = [
       'スーバーホットをイメージして作成したトップダウンシューターです。止まれば敵の弾丸もスローモーションに。 弾道の視覚化と弾の反射を実装して、戦略的なプレイを促進しています。',
     tech: ['Unity', 'C#'],
     demoUrl: 'https://unityroom.com/games/chronostep',
+    videoUrl: 'https://youtu.be/GIvMayEjD4M',
   },
   {
     id: 'red-survivor',
@@ -53,6 +78,7 @@ export const projects: Project[] = [
       'ヴァンサバ風の3Dアクションゲームプロトタイプです。3つの武器を強化しながら敵を倒していきましょう。VFXやポストエフェクトを駆使して、爽快な戦闘体験を目指しました。',
     tech: ['Unity', 'C#', 'R3','UniTask', 'VContainer'],
     demoUrl: 'https://unityroom.com/games/redsurvivor',
+    videoUrl: 'https://youtu.be/k0NvsP5da2Y',
   },
   
   {
@@ -63,6 +89,7 @@ export const projects: Project[] = [
       '研究室の展示用に作成したソウルライクゲームのプロトタイプです。プレイヤーは剣と盾を駆使して、敵の攻撃を回避しながら戦います。シンプルな操作性と挑戦的なゲームプレイを目指しました。',
     tech: ['Unity', 'c#'],
     demoUrl: 'https://play.unity.com/ja/games/ad74b4af-9945-4fc5-a8a7-0d6be68b4e0d/soul-fall',
+    videoUrl: 'https://youtu.be/rGvcQK5-_f4',
   },
   {
     id: 'Kitchen-Chaos',

@@ -34,7 +34,7 @@ function App() {
   const handleRetryBoss    = () => setBossKey((k) => k + 1);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A]">
+    <div className="min-h-screen scanlines" style={{ background: 'var(--bg)', color: 'var(--ink)' }}>
       <ParticleBackground />
 
       <SocialSidebar />
@@ -43,10 +43,10 @@ function App() {
         <Navbar />
         <main>
           <Hero onStartBoss={handleStartBoss} />
-          <About />
           <Works />
-          <Skills />
           <Research />
+          <About />
+          <Skills />
           <Contact />
         </main>
       </div>
