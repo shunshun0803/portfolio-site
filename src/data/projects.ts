@@ -7,6 +7,7 @@ import ticTacToeImg from './thumbnails/TicTacToeImg.png'
 import zankiBossBattleImg from './thumbnails/Zanki.png'
 import logicartaImg from './thumbnails/logicarta.png'
 import zombieShooterImg from './thumbnails/zombieShooter.jpg'
+import ShiroFlipImg from './thumbnails/ShiroFlipImg.jpg'
 
 export interface Project {
   id: string;
@@ -20,6 +21,15 @@ export interface Project {
 }
 
 export const projects: Project[] = [
+  {
+    id: 'ShiroFlip',
+    title: 'ShiroFlip',
+    thumbnail: ShiroFlipImg,
+    description:
+      'unity1weekで開発した盤面の白黒を反転させながらゴールを目指すパズルゲーム。白いマスは安全、黒いマスは即死。反転は「ボタンを押した位置の周囲2マス」にしか効かないため、いつ押すかに加えて、どこに立って押すかが問われるのが核となる仕組みです。全39ステージ（チュートリアル9＋本編30）。1週間のゲームジャム作品ですが、期間内に「チュートリアル→全30ステージ→ゲームクリア」まで一本の流れとして遊べる状態に仕上げました。',
+    tech: ['Unity', 'C#', 'UniTask', 'R3', 'VContainer'],
+    demoUrl: 'https://unityroom.com/games/shunshun0803_shiroflip',
+  },
   {
     id: 'ZombieShooter',
     title: 'Zombie Shooter',
