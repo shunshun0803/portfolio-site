@@ -29,7 +29,7 @@ function ProgressEntry({ v, index }: { v: ProgressVideo; index: number }) {
             loop
             playsInline
             preload="metadata"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain" // 縦長の動画も切れずに収まるように
             onMouseEnter={(e) => e.currentTarget.play().catch(() => undefined)}
             onMouseLeave={(e) => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
           />

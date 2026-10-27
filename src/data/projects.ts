@@ -56,7 +56,7 @@ export const projects: Project[] = [
     title: 'ARCHEIA ─ The Ember Rite ─',
     thumbnail: archeiaHordeImg,
     gallery: [
-      { src: archeiaHordeImg, caption: '第4章：機械兵の群れを三日月の斬撃でなぎ払う' },
+      { src: archeiaHordeImg, caption: '第4章：機械兵の群れをなぎ払う' },
       { src: archeiaSurroundedImg, caption: '第2章：盾兵・剣兵に囲まれながら拠点を制圧する' },
       { src: archeiaCrabImg, caption: '第2章ボス戦：剣閃で斬りかかる' },
       { src: archeiaSnakeImg, caption: '第4章ボス「蛇神ナーガラジャ」へのとどめ演出' },
@@ -107,7 +107,7 @@ export const projects: Project[] = [
     demoUrl: 'https://unityroom.com/games/logicarta-demo',
     videoUrl: 'https://youtu.be/bqfVnrwbkg4',
     featured: {
-      period: '2026年2月〜5月（約4ヶ月・約480時間）',
+      period: '2026年2月〜5月（約4ヶ月）',
       team: '個人',
       role: '全工程（企画・ゲームデザイン・プログラミング・アーキテクチャ設計・UI実装）',
       points: [
@@ -130,7 +130,7 @@ export const projects: Project[] = [
     videoUrl: 'https://youtu.be/8jzUQTzkxY8',
     // githubUrl: 'https://github.com/shunshun0803/xxx',
     featured: {
-      period: '2026年4月（約1ヶ月・約150時間）',
+      period: '2026年4月（約1ヶ月）',
       team: '個人',
       role: '全工程（企画・プログラミング・3Dアクション実装・強化学習AI設計・アニメーション）',
       points: [
@@ -196,7 +196,7 @@ export const projects: Project[] = [
     description:
       '敵を撃ち落とし、1体でも突破されたらゲームオーバーというサバイバル・シューティングです。コンボや演出で「遊んでいて気持ちいい手応え」を出すことを目標に、UIの作り込みやDOTweenによるアニメーション演出にこだわって個人制作しました。',
     tech: ['Unity', 'C#', 'UniTask', 'R3', 'VContainer'],
-    period: '2026年6月（約2週間・約110時間）',
+    period: '2026年6月（約2週間）',
     demoUrl: 'https://unityroom.com/games/shunshun0803_zombieshooter',
     videoUrl: 'https://youtu.be/umT_MEtIvRU',
   },
@@ -207,7 +207,7 @@ export const projects: Project[] = [
     description:
       'Unityで制作した3D三目並べゲームです。対戦相手のAIにQ学習（強化学習）を実装し、対局を重ねるごとに強くなる仕組みを自作しました。',
     tech: ['Unity', 'C#', 'Q-Learning'],
-    period: '2026年4月（約1週間・約42時間）',
+    period: '2026年4月（約1週間）',
     demoUrl: 'https://unityroom.com/games/tic-tac-toe-ai',
     videoUrl: 'https://youtu.be/xzMpxUCaVlY',
   },
@@ -218,7 +218,7 @@ export const projects: Project[] = [
     description:
       'SUPERHOTから着想を得たトップダウンシューターです。止まれば敵の弾丸もスローモーションに。弾道の視覚化と弾の反射を実装して、戦略的なプレイを促進しています。',
     tech: ['Unity', 'C#'],
-    period: '2026年1月（約2週間・約70時間）',
+    period: '2026年1月（約2週間）',
     demoUrl: 'https://unityroom.com/games/chronostep',
     videoUrl: 'https://youtu.be/GIvMayEjD4M',
   },
@@ -229,7 +229,7 @@ export const projects: Project[] = [
     description:
       'ヴァンサバ風の3Dアクションゲームプロトタイプです。3つの武器を強化しながら敵を倒していきましょう。VFXやポストエフェクトを駆使して、爽快な戦闘体験を目指しました。',
     tech: ['Unity', 'C#', 'R3','UniTask', 'VContainer'],
-    period: '2025年11月〜2026年1月（約3ヶ月・約360時間）',
+    period: '2025年11月〜2026年1月（約3ヶ月）',
     demoUrl: 'https://unityroom.com/games/redsurvivor',
     videoUrl: 'https://youtu.be/k0NvsP5da2Y',
   },

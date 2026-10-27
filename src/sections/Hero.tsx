@@ -4,9 +4,6 @@ import { projects } from '../data/projects';
 const playableCount = projects.filter((p) => p.demoUrl && !p.learning).length;
 
 const stats = [
-  // 作品資料に記載の所要時間の合計（Logicarta・RED.SURVIVOR・Zanki・Zombie Shooter・ChronoStep・Tic-Tac-Toe で約1,212時間）。
-  // ARCHEIA・ShiroFlip などは含めていないので下限値
-  { value: '1,200h+', label: 'DEV TIME', note: '累計開発時間' },
   { value: `${playableCount}`, label: 'PLAYABLE', note: 'ブラウザで遊べる作品' },
 ];
 
