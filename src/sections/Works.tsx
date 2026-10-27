@@ -7,7 +7,8 @@ import { projects, type Project, type FeaturedDetail } from '../data/projects';
 const featuredProjects = projects.filter(
   (p): p is Project & { featured: FeaturedDetail } => Boolean(p.featured),
 );
-const otherProjects = projects.filter((p) => !p.featured);
+const otherProjects = projects.filter((p) => !p.featured && !p.learning);
+const learningProjects = projects.filter((p) => p.learning);
 
 const aiUsages = [
   '企画段階での壁打ち・アイデア出し',
@@ -61,6 +62,24 @@ export function Works() {
               <ProjectCard key={project.id} project={project} index={i} />
             ))}
           </div>
+
+          {learningProjects.length > 0 ? (
+            <>
+              <div className="flex items-center gap-3 mt-16 mb-3">
+                <span className="font-pixel text-[10px] text-[#B7B29A]">▶ TRAINING</span>
+                <span className="font-pixel text-[8px] text-[#6b6a58]">学習記録</span>
+                <div className="h-1 flex-1" style={{ background: 'var(--line)' }} />
+              </div>
+              <p className="font-dot text-[#6b6a58] text-xs leading-relaxed mb-6">
+                YouTube・Udemy のチュートリアルを参考に、Unity の基礎を学ぶために制作した作品です。
+              </p>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+                {learningProjects.map((project, i) => (
+                  <ProjectCard key={project.id} project={project} index={i} />
+                ))}
+              </div>
+            </>
+          ) : null}
 
           {/* Generative AI usage disclosure */}
           <div

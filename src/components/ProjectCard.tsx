@@ -87,11 +87,26 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
               VIDEO
             </div>
           ) : null}
+
+          {project.learning ? (
+            <div
+              className="absolute right-2 bottom-2 z-10 px-2 py-1 text-[10px] font-dot font-bold text-black"
+              style={{ background: '#B7B29A', boxShadow: '2px 2px 0 #000' }}
+            >
+              学習用
+            </div>
+          ) : null}
         </div>
       </div>
 
       {/* Control panel */}
       <div className="flex flex-col flex-1 px-4 pb-4">
+        {project.period ? (
+          <div className="flex items-baseline gap-2 mb-2">
+            <span className="font-pixel text-[7px] shrink-0" style={{ color: accentHex }}>PERIOD</span>
+            <span className="font-dot text-[11px] text-[#F5F1E0]">{project.period}</span>
+          </div>
+        ) : null}
         <p className="font-dot text-[#B7B29A] text-xs leading-relaxed mb-3">
           {project.description}
         </p>

@@ -1,4 +1,15 @@
 import { PixelHero } from '../components/PixelHero';
+import { projects } from '../data/projects';
+
+const playableCount = projects.filter((p) => p.demoUrl && !p.learning).length;
+
+const stats = [
+  // 作品資料に記載の所要時間の合計（Logicarta・RED.SURVIVOR・Zanki・Zombie Shooter・ChronoStep・Tic-Tac-Toe で約1,212時間）。
+  // ARCHEIA・ShiroFlip などは含めていないので下限値
+  { value: '1,200h+', label: 'DEV TIME', note: '累計開発時間' },
+  { value: `${playableCount}`, label: 'PLAYABLE', note: 'ブラウザで遊べる作品' },
+  { value: '282', label: 'UNIT TESTS', note: 'ARCHEIAの単体テスト' },
+];
 
 interface HeroProps {
   onStartBoss: () => void;
@@ -72,14 +83,11 @@ export function Hero({ onStartBoss }: HeroProps) {
             </div>
 
             <div className="mt-10 flex gap-8 justify-center md:justify-start">
-              {[
-                { value: 'Unity', label: 'ENGINE' },
-                { value: 'C#',    label: 'LANG' },
-                { value: '3D',    label: 'ACTION' },
-              ].map((s) => (
+              {stats.map((s) => (
                 <div key={s.label} className="text-center">
                   <div className="text-[#FFD200] font-pixel text-sm">{s.value}</div>
                   <div className="text-[#6b6a58] font-pixel text-[8px] mt-1.5">{s.label}</div>
+                  <div className="text-[#B7B29A] font-dot text-[10px] mt-1">{s.note}</div>
                 </div>
               ))}
             </div>

@@ -35,6 +35,8 @@ export interface Project {
   demoUrl?: string;
   videoUrl?: string;
   thumbnail?: string;
+  period?: string;    // 通常カード用の制作期間（代表作は featured.period を使う）
+  learning?: boolean; // チュートリアルを参考にした学習用の作品。Works の末尾に分けて表示する
   featured?: FeaturedDetail;
 }
 
@@ -164,6 +166,7 @@ export const projects: Project[] = [
     description:
       'unity1weekで開発した盤面の白黒を反転させながらゴールを目指すパズルゲーム。白いマスは安全、黒いマスは即死。反転は「ボタンを押した位置の周囲2マス」にしか効かないため、いつ押すかに加えて、どこに立って押すかが問われるのが核となる仕組みです。全30ステージ。1週間のゲームジャム作品ですが、期間内に全30ステージからゲームクリアまで一本の流れとして遊べる状態に仕上げました。',
     tech: ['Unity', 'C#', 'UniTask', 'R3', 'VContainer'],
+    period: '2026年7〜8月（unity1week・1週間）',
     demoUrl: 'https://unityroom.com/games/shunshun0803_shiroflip',
   },
   {
@@ -173,6 +176,7 @@ export const projects: Project[] = [
     description:
       '敵を撃ち落とし、1体でも突破されたらゲームオーバーというサバイバル・シューティングです。コンボや演出で「遊んでいて気持ちいい手応え」を出すことを目標に、UIの作り込みやDOTweenによるアニメーション演出にこだわって個人制作しました。',
     tech: ['Unity', 'C#', 'UniTask', 'R3', 'VContainer'],
+    period: '2026年6月（約2週間・約110時間）',
     demoUrl: 'https://unityroom.com/games/shunshun0803_zombieshooter',
     videoUrl: 'https://youtu.be/umT_MEtIvRU',
   },
@@ -183,6 +187,7 @@ export const projects: Project[] = [
     description:
       'Unityで制作した3D三目並べゲームです。対戦相手のAIにQ学習（強化学習）を実装し、対局を重ねるごとに強くなる仕組みを自作しました。',
     tech: ['Unity', 'C#', 'Q-Learning'],
+    period: '2026年4月（約1週間・約42時間）',
     demoUrl: 'https://unityroom.com/games/tic-tac-toe-ai',
     videoUrl: 'https://youtu.be/xzMpxUCaVlY',
   },
@@ -193,6 +198,7 @@ export const projects: Project[] = [
     description:
       'SUPERHOTから着想を得たトップダウンシューターです。止まれば敵の弾丸もスローモーションに。弾道の視覚化と弾の反射を実装して、戦略的なプレイを促進しています。',
     tech: ['Unity', 'C#'],
+    period: '2026年1月（約2週間・約70時間）',
     demoUrl: 'https://unityroom.com/games/chronostep',
     videoUrl: 'https://youtu.be/GIvMayEjD4M',
   },
@@ -203,6 +209,7 @@ export const projects: Project[] = [
     description:
       'ヴァンサバ風の3Dアクションゲームプロトタイプです。3つの武器を強化しながら敵を倒していきましょう。VFXやポストエフェクトを駆使して、爽快な戦闘体験を目指しました。',
     tech: ['Unity', 'C#', 'R3','UniTask', 'VContainer'],
+    period: '2025年11月〜2026年1月（約3ヶ月・約360時間）',
     demoUrl: 'https://unityroom.com/games/redsurvivor',
     videoUrl: 'https://youtu.be/k0NvsP5da2Y',
   },
@@ -225,6 +232,7 @@ export const projects: Project[] = [
       'YouTubeの動画を参考に作成したOvercooked風のキッチンアクションゲームのプロトタイプです。プレイヤーはシェフとなり、注文された料理を作るために食材を切ったり、鍋で調理したりします。協力プレイも可能で、友達と一緒に楽しむことができます。',
     tech: ['Unity', 'C#'],
     demoUrl: 'https://shun08shun.itch.io/kitchenchaos',
+    learning: true,
   },
   {
     id: 'little-adventure',
@@ -234,6 +242,7 @@ export const projects: Project[] = [
       'Udemyのコースを参考に作成した3Dアクションゲームのプロトタイプです。NavMeshやAnimatorの使い方やPlayerの動きや敵の動きの実装を学びました。Cinemachineを使用して、カメラワークも工夫しています。',
     tech: ['Unity', 'C#', 'NavMesh', 'Animator'],
     demoUrl: 'https://shun08shun.itch.io/littleadventure',
+    learning: true,
   },
 
 ];
