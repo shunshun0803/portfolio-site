@@ -29,7 +29,7 @@ export const timeline: TimelineEvent[] = [
   {
     date: '2026.09〜',
     title: '3Dアクション「ARCHEIA」制作開始',
-    detail: '無双×ソウルライク。第1〜2章プレイ可能・単体テスト282件',
+    detail: '無双×ソウルライク。全6章予定のうち第1〜4章がプレイ可能',
   },
   {
     date: '2026.08',

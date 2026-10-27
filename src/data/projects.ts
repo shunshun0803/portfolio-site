@@ -9,6 +9,13 @@ import logicartaImg from './thumbnails/logicarta.png'
 import zombieShooterImg from './thumbnails/zombieShooter.jpg'
 import ShiroFlipImg from './thumbnails/ShiroFlipImg.jpg'
 import EggIncubatorImg from './thumbnails/AppIcon.png'
+import archeiaHordeImg from './thumbnails/archeia/01_horde_slash.webp'
+import archeiaSurroundedImg from './thumbnails/archeia/02_surrounded.webp'
+import archeiaCrabImg from './thumbnails/archeia/03_boss_crab.webp'
+import archeiaSnakeImg from './thumbnails/archeia/04_boss_snake.webp'
+import archeiaFrogImg from './thumbnails/archeia/05_boss_frog.webp'
+import archeiaFogImg from './thumbnails/archeia/06_fog_shrine.webp'
+import archeiaTempleImg from './thumbnails/archeia/07_temple.webp'
 
 /** 課題 → 工夫 → 結果 の1セット */
 export interface CasePoint {
@@ -35,6 +42,8 @@ export interface Project {
   demoUrl?: string;
   videoUrl?: string;
   thumbnail?: string;
+  gallery?: { src: string; caption: string }[]; // 代表作カードで切り替えて見せるスクリーンショット
+  extraVideos?: { label: string; url: string }[]; // videoUrl 以外の動画（代表作カードのみ表示）
   period?: string;    // 通常カード用の制作期間（代表作は featured.period を使う）
   learning?: boolean; // チュートリアルを参考にした学習用の作品。Works の末尾に分けて表示する
   featured?: FeaturedDetail;
@@ -45,9 +54,20 @@ export const projects: Project[] = [
   {
     id: 'ARCHEIA',
     title: 'ARCHEIA ─ The Ember Rite ─',
-    // thumbnail: archeiaImg,  // TODO: スクリーンショットを ./thumbnails に置いて import する
+    thumbnail: archeiaHordeImg,
+    gallery: [
+      { src: archeiaHordeImg, caption: '第4章：機械兵の群れを三日月の斬撃でなぎ払う' },
+      { src: archeiaSurroundedImg, caption: '第2章：盾兵・剣兵に囲まれながら拠点を制圧する' },
+      { src: archeiaCrabImg, caption: '第2章ボス戦：剣閃で斬りかかる' },
+      { src: archeiaSnakeImg, caption: '第4章ボス「蛇神ナーガラジャ」へのとどめ演出' },
+      { src: archeiaFrogImg, caption: '第3章ボス「霧喰らいのバトラクス」登場' },
+      { src: archeiaFogImg, caption: '第3章：霧の湿地' },
+      { src: archeiaTempleImg, caption: '第4章：密林の寺院' },
+    ],
+    videoUrl: 'https://youtu.be/YeUKxFf2Q2c',
+    extraVideos: [{ label: 'ACTION DEMO', url: 'https://youtu.be/8I0dVK6sgcQ' }],
     description:
-      '古代文明の遺跡を守る機械の番人が赤い光に侵されて狂い、古代の灯火を継ぐ少女「灯守（ひもり）」が各地の光の源を祓っていく3Dアクションゲームです（制作中）。無双シリーズの爽快感とソウルライクの手応えの掛け合わせを狙い、全6章構想のうち第1〜2章がプレイ可能。2系統コンボ・派生攻撃・空中コンボ・ジャストガードからの致命の反撃・無双乱舞・ロックオン、機械兵の群れと拠点制圧、中ボス・章ボス、潮位や鏡を使った謎解き、水門の防衛戦を実装しています。キャラクター・モーション・環境・音は購入／配布素材を使用しています。',
+      '古代文明の遺跡を守る機械の番人が赤い光に侵されて狂い、古代の灯火を継ぐ少女「灯守（ひもり）」が各地の光の源を祓っていく3Dアクションゲームです（制作中）。無双シリーズの爽快感とソウルライクの手応えの掛け合わせを狙い、全6章予定のうち第1〜4章がプレイ可能（第4章は調整中）で、タイトル画面・オープニングムービー・拠点の祠も実装済みです。2系統コンボ・派生攻撃・空中コンボ・ジャストガードからの致命の反撃・無双乱舞・ロックオン、機械兵の群れと拠点制圧、中ボス・章ボス、潮位や鏡を使った謎解き、水門の防衛戦を実装しています。キャラクター・モーション・環境・音は購入／配布素材を使用しています。',
     tech: ['Unity 6', 'URP', 'C#', 'VContainer', 'R3', 'UniTask', 'RenderGraph'],
     featured: {
       period: '2026年9月〜（制作中）',

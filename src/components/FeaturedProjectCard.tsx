@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { type Project, type FeaturedDetail } from '../data/projects';
 import { SkillTag } from './SkillTag';
 import { LazyProjectThumbnail as ProjectThumbnail } from './LazyProjectThumbnail';
@@ -26,7 +27,12 @@ export function FeaturedProjectCard({ project, index }: FeaturedProjectCardProps
     { label: 'GITHUB', href: project.githubUrl },
     { label: 'DEMO',   href: project.demoUrl },
     { label: 'VIDEO',  href: project.videoUrl },
+    ...(project.extraVideos ?? []).map((v) => ({ label: v.label, href: v.url })),
   ].filter((l): l is { label: string; href: string } => Boolean(l.href));
+
+  const gallery = project.gallery ?? [];
+  const [selected, setSelected] = useState(0);
+  const current = gallery[selected];
 
   return (
     <article
@@ -48,13 +54,38 @@ export function FeaturedProjectCard({ project, index }: FeaturedProjectCardProps
         {/* Screen */}
         <div className="md:col-span-2 p-3" style={{ background: '#05050c' }}>
           <div className="relative aspect-video overflow-hidden" style={{ background: '#0d0d16', border: '2px solid #000' }}>
-            {project.thumbnail ? (
+            {current ? (
+              <img src={current.src} alt={current.caption} className="w-full h-full object-contain" />
+            ) : project.thumbnail ? (
               <img src={project.thumbnail} alt={project.title} className="w-full h-full object-contain" />
             ) : (
               <ProjectThumbnail projectId={project.id} hovered={false} />
             )}
             <div className="screen-scanlines" aria-hidden="true" />
           </div>
+
+          {gallery.length > 1 ? (
+            <>
+              <p className="font-dot text-[11px] text-[#B7B29A] mt-2 min-h-[2.5em] leading-snug">{current?.caption}</p>
+              <div className="grid grid-cols-7 gap-1 mt-1">
+                {gallery.map((shot, i) => (
+                  <button
+                    key={shot.src}
+                    type="button"
+                    onClick={() => setSelected(i)}
+                    aria-label={shot.caption}
+                    className="aspect-video overflow-hidden transition-opacity duration-150"
+                    style={{
+                      border: `2px solid ${i === selected ? accentHex : '#000'}`,
+                      opacity: i === selected ? 1 : 0.55,
+                    }}
+                  >
+                    <img src={shot.src} alt="" loading="lazy" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : null}
 
           {/* Meta */}
           <dl className="mt-4 space-y-2 text-xs">
@@ -105,7 +136,7 @@ export function FeaturedProjectCard({ project, index }: FeaturedProjectCardProps
             ))}
           </div>
 
-          <div className="flex gap-4 pt-3 mt-auto" style={{ borderTop: '2px solid var(--line)' }}>
+          <div className="flex flex-wrap gap-4 pt-3 mt-auto" style={{ borderTop: '2px solid var(--line)' }}>
             {links.length === 0 ? (
               <span className="font-pixel text-[9px] text-[#6b6a58]">IN DEVELOPMENT</span>
             ) : null}
