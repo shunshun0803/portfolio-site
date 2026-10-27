@@ -23,12 +23,18 @@ export function Hero({ onStartBoss }: HeroProps) {
               style={{ borderColor: 'var(--green)', background: 'rgba(0,0,0,0.4)', boxShadow: '2px 2px 0 #000' }}
             >
               <span className="w-2 h-2 bg-[#46E86A] animate-pulse-glow" />
-              <span className="font-pixel text-[8px] text-[#46E86A]">PLAYER 1 · 就活中</span>
+              <span className="font-pixel text-[8px] text-[#46E86A]">PLAYER 1 · 28卒 就活中</span>
             </div>
 
-            <h1 className="font-pixel text-2xl md:text-3xl lg:text-4xl text-[#FFD200] leading-tight mb-5 text-glow-yellow">
-              shunshun0803
+            <h1 className="font-dot font-bold text-3xl md:text-4xl lg:text-5xl text-[#FFD200] leading-tight mb-2 text-glow-yellow">
+              伊藤 俊生
             </h1>
+            <div className="font-pixel text-[10px] text-[#6b6a58] mb-5">
+              @shunshun0803
+            </div>
+            <div className="font-dot text-sm text-[#B7B29A] mb-5">
+              会津大学大学院 修士1年 / 2028年3月修了予定
+            </div>
 
             <div className="font-dot text-lg md:text-xl mb-5">
               <span className="text-[#FFD200]">ゲームクライアントエンジニア</span>

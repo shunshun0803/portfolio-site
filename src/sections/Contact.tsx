@@ -19,9 +19,9 @@ export function Contact() {
 
           <GlassCard accent="yellow" className="p-8 mb-6">
             <p className="font-dot text-[#B7B29A] text-sm leading-relaxed mb-8">
-              現在、ゲーム開発・クライアントエンジニアリング分野での
-              <span className="text-[#FFD200] font-bold">インターンシップやアルバイトの機会</span>を探しています。
-              プロジェクトについてのご相談・質問・ご連絡など、どんなことでもお待ちしています。
+              2028年3月修了予定（28卒）として、
+              <span className="text-[#FFD200] font-bold">ゲームクライアントエンジニア職</span>を志望しています。
+              選考・インターンシップのご案内や、作品についてのご質問など、お気軽にご連絡ください。
             </p>
 
             <a

@@ -1,15 +1,12 @@
 import { type Project, type FeaturedDetail } from '../data/projects';
 import { SkillTag } from './SkillTag';
 import { ProjectThumbnail } from './ProjectThumbnail';
+import { todoColor as textColor } from '../utils/todo';
 
 interface FeaturedProjectCardProps {
   project: Project & { featured: FeaturedDetail };
   index: number;
 }
-
-// 未記入のプレースホルダーは赤で目立たせる（埋めれば自動で通常色に戻る）
-const TODO_MARK = '【要記入】';
-const textColor = (text: string, normal: string) => (text.includes(TODO_MARK) ? '#FF4040' : normal);
 
 const stepLabels = [
   { key: 'challenge', label: '課題' },

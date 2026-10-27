@@ -1,6 +1,8 @@
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 import { SectionTitle } from '../components/SectionTitle';
 import { GlassCard } from '../components/GlassCard';
+import { timeline } from '../data/timeline';
+import { todoColor } from '../utils/todo';
 
 const highlights = [
   { icon: '🎮', label: 'ゲーム開発', desc: 'アクション・3Dヴァンサバ・トップダウンSTG・スレスパ風タワーディフェンスなど、多ジャンルのUnityゲーム開発', accent: 'yellow' as const },
@@ -42,10 +44,12 @@ export function About() {
               <GlassCard accent="yellow" lift={false} className="p-4 mt-6">
                 <div className="space-y-2.5 text-xs">
                   {[
-                    { key: 'ROLE', val: 'ゲームクライアントエンジニア / Unity開発者' },
+                    { key: 'NAME', val: '伊藤 俊生' },
+                    { key: 'SCHOOL', val: '会津大学大学院 修士1年（学部3年次から飛び級進学）' },
+                    { key: 'GRADUATION', val: '2028年3月修了予定（28卒）' },
+                    { key: 'TARGET', val: 'ゲームクライアントエンジニア' },
                     { key: 'FOCUS', val: 'ゲームプレイ・AI・アニメーション・サウンド・グラフィックス' },
                     { key: 'TECH', val: 'Unity (C#)・Go・Java・Python・Blender・HLSL' },
-                    { key: 'STATUS', val: '就活中' },
                   ].map((row) => (
                     <div key={row.key} className="flex gap-3">
                       <span className="font-pixel text-[8px] text-[#FFD200] w-24 shrink-0 pt-0.5">{row.key}</span>
@@ -68,6 +72,42 @@ export function About() {
                 </GlassCard>
               ))}
             </div>
+          </div>
+
+          {/* Timeline */}
+          <div className="mt-16">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="font-pixel text-[10px] text-[#FFD200]">▶ HISTORY</span>
+              <span className="font-pixel text-[8px] text-[#6b6a58]">経歴・実績</span>
+              <div className="h-1 flex-1" style={{ background: 'var(--line)' }} />
+            </div>
+
+            <ol className="relative pl-6" style={{ borderLeft: '3px solid var(--line)' }}>
+              {timeline.map((ev) => {
+                const accent = ev.highlight ? '#FF7A18' : '#FFD200';
+                return (
+                  <li key={ev.title} className="relative mb-6 last:mb-0">
+                    <span
+                      className="absolute -left-[33px] top-1 w-3.5 h-3.5"
+                      style={{ background: accent, border: '2px solid #000', boxShadow: '2px 2px 0 #000' }}
+                      aria-hidden="true"
+                    />
+                    <div className="font-pixel text-[9px] mb-1" style={{ color: todoColor(ev.date, accent) }}>{ev.date}</div>
+                    <div className="font-dot text-sm font-bold text-[#F5F1E0]">
+                      {ev.title}
+                      {ev.highlight ? (
+                        <span className="ml-2 font-pixel text-[7px] px-1.5 py-0.5 text-black align-middle" style={{ background: accent }}>
+                          PICK UP
+                        </span>
+                      ) : null}
+                    </div>
+                    {ev.detail ? (
+                      <div className="font-dot text-xs text-[#B7B29A] leading-relaxed mt-1">{ev.detail}</div>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ol>
           </div>
         </div>
       </div>
