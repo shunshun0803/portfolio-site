@@ -13,7 +13,7 @@ export const skillCategories: SkillCategory[] = [
   {
     category: 'その他言語',
     color: 'purple',
-    skills: ['Go', 'Java', 'Python', 'c++'],
+    skills: ['Go', 'Java', 'Python', 'C++'],
   },
   {
     category: 'ツール',
