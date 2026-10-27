@@ -15,7 +15,7 @@ export interface ProgressVideo {
 export const progressVideos: ProgressVideo[] = [
   {
     id: 'nagi-llm-aivis',
-    src: 'videos/nagi-llm-aivis-demo-2026-10.mp4',
+    youtubeId: 'https://youtu.be/-sf0cxYYXQ0',
   },
   {
     id: 'p1',
