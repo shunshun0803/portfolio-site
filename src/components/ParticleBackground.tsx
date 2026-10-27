@@ -1,4 +1,4 @@
-import { useRef, useMemo, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -6,33 +6,37 @@ const COUNT = 220;
 const MAX_LINES = 300;
 const CONNECT_DIST = 1.8;
 
+function createParticleData() {
+  const positions = new Float32Array(COUNT * 3);
+  const initialVelocities = new Float32Array(COUNT * 2);
+  const colors = new Float32Array(COUNT * 3);
+  const linePositions = new Float32Array(MAX_LINES * 2 * 3);
+  const cyan = new THREE.Color('#FFD200');
+  const purple = new THREE.Color('#FF7A18');
+
+  for (let i = 0; i < COUNT; i++) {
+    positions[i * 3]     = (Math.random() - 0.5) * 12;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 7;
+    positions[i * 3 + 2] = 0;
+    initialVelocities[i * 2]     = (Math.random() - 0.5) * 0.01;
+    initialVelocities[i * 2 + 1] = (Math.random() - 0.5) * 0.01;
+    const c = Math.random() > 0.55 ? cyan : purple;
+    colors[i * 3]     = c.r;
+    colors[i * 3 + 1] = c.g;
+    colors[i * 3 + 2] = c.b;
+  }
+  return { positions, initialVelocities, colors, linePositions };
+}
+
 function Particles() {
   const pointsRef = useRef<THREE.Points>(null);
   const linesRef = useRef<THREE.LineSegments>(null);
   const mouseWorld = useRef({ x: 0, y: 0 });
   const { viewport } = useThree();
 
-  const { positions, velocities, colors, linePositions } = useMemo(() => {
-    const positions = new Float32Array(COUNT * 3);
-    const velocities = new Float32Array(COUNT * 2);
-    const colors = new Float32Array(COUNT * 3);
-    const linePositions = new Float32Array(MAX_LINES * 2 * 3);
-    const cyan = new THREE.Color('#FFD200');
-    const purple = new THREE.Color('#FF7A18');
-
-    for (let i = 0; i < COUNT; i++) {
-      positions[i * 3]     = (Math.random() - 0.5) * 12;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 7;
-      positions[i * 3 + 2] = 0;
-      velocities[i * 2]     = (Math.random() - 0.5) * 0.01;
-      velocities[i * 2 + 1] = (Math.random() - 0.5) * 0.01;
-      const c = Math.random() > 0.55 ? cyan : purple;
-      colors[i * 3]     = c.r;
-      colors[i * 3 + 1] = c.g;
-      colors[i * 3 + 2] = c.b;
-    }
-    return { positions, velocities, colors, linePositions };
-  }, []);
+  // 初期配置はマウント時に1回だけ作る。velocities は毎フレーム書き換えるので ref で持つ
+  const [{ positions, colors, linePositions, initialVelocities }] = useState(createParticleData);
+  const velocitiesRef = useRef(initialVelocities);
 
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
@@ -47,6 +51,7 @@ function Particles() {
 
   useFrame(() => {
     if (!pointsRef.current || !linesRef.current) return;
+    const velocities = velocitiesRef.current;
 
     const pos = pointsRef.current.geometry.attributes.position.array as Float32Array;
     const { x: mx, y: my } = mouseWorld.current;

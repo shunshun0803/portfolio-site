@@ -1,6 +1,6 @@
 import { type Project, type FeaturedDetail } from '../data/projects';
 import { SkillTag } from './SkillTag';
-import { ProjectThumbnail } from './ProjectThumbnail';
+import { LazyProjectThumbnail as ProjectThumbnail } from './LazyProjectThumbnail';
 import { todoColor as textColor } from '../utils/todo';
 
 interface FeaturedProjectCardProps {

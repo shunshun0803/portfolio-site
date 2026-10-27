@@ -6,14 +6,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   base: '/portfolio-site/',
   build: {
-    rollupOptions: {
-      output: {
-        manualChunks(id: string) {
-          if (id.includes('three') || id.includes('@react-three')) {
-            return 'three';
-          }
-        },
-      },
-    },
+    // three.js のチャンク（約880kB）は遅延読み込みで初回表示に含まれないので、警告の閾値を上げる
+    chunkSizeWarningLimit: 1000,
   },
 })

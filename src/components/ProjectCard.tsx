@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { type Project } from '../data/projects';
 import { SkillTag } from './SkillTag';
-import { ProjectThumbnail } from './ProjectThumbnail';
+import { LazyProjectThumbnail as ProjectThumbnail } from './LazyProjectThumbnail';
 import { isDirectVideo } from '../utils/media';
 
 interface ProjectCardProps {

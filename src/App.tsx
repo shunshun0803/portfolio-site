@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Navbar } from './components/Navbar';
-import { ParticleBackground } from './components/ParticleBackground';
 import { Hero } from './sections/Hero';
 import { About } from './sections/About';
 import { Works } from './sections/Works';
@@ -9,10 +8,16 @@ import { Research } from './sections/Research';
 import { Contact } from './sections/Contact';
 import { scrollStore } from './store/scroll';
 import { type GameMode } from './store/game';
-import { BossGame, type BossStats } from './components/game/BossGame';
-import { PortalOverlay } from './components/game/PortalOverlay';
-import { ExploreGame } from './components/game/ExploreGame';
+import type { BossStats } from './components/game/BossGame';
 import { SocialSidebar } from './components/SocialSidebar';
+
+// three.js やミニゲームは初回表示に不要なので、本文を先に出してから読み込む
+const ParticleBackground = lazy(() =>
+  import('./components/ParticleBackground').then((m) => ({ default: m.ParticleBackground })),
+);
+const BossGame = lazy(() => import('./components/game/BossGame').then((m) => ({ default: m.BossGame })));
+const PortalOverlay = lazy(() => import('./components/game/PortalOverlay').then((m) => ({ default: m.PortalOverlay })));
+const ExploreGame = lazy(() => import('./components/game/ExploreGame').then((m) => ({ default: m.ExploreGame })));
 
 function App() {
   const [gameMode,  setGameMode]  = useState<GameMode>('idle');
@@ -35,7 +40,9 @@ function App() {
 
   return (
     <div className="min-h-screen scanlines" style={{ background: 'var(--bg)', color: 'var(--ink)' }}>
-      <ParticleBackground />
+      <Suspense fallback={null}>
+        <ParticleBackground />
+      </Suspense>
 
       <SocialSidebar />
 
@@ -51,16 +58,18 @@ function App() {
         </main>
       </div>
 
-      {gameMode === 'boss' && (
-        <BossGame
-          key={bossKey}
-          onBossDefeated={handleBossDefeated}
-          onExit={handleExitGame}
-          onRetry={handleRetryBoss}
-        />
-      )}
-      {gameMode === 'portal'  && <PortalOverlay onComplete={handlePortalDone} />}
-      {gameMode === 'explore' && <ExploreGame   onExit={handleExitGame} bossStats={bossStats} />}
+      <Suspense fallback={null}>
+        {gameMode === 'boss' && (
+          <BossGame
+            key={bossKey}
+            onBossDefeated={handleBossDefeated}
+            onExit={handleExitGame}
+            onRetry={handleRetryBoss}
+          />
+        )}
+        {gameMode === 'portal'  && <PortalOverlay onComplete={handlePortalDone} />}
+        {gameMode === 'explore' && <ExploreGame   onExit={handleExitGame} bossStats={bossStats} />}
+      </Suspense>
     </div>
   );
 }

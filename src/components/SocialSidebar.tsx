@@ -6,8 +6,9 @@ const snsLinks = socialLinks.filter((l) => !l.href.startsWith('mailto'));
 export function SocialSidebar() {
   const [hovered, setHovered] = useState<string | null>(null);
 
+  // 本文（max-w-6xl）の左に収まる幅でだけ出す。それより狭い画面では Contact 内のリンクを使う
   return (
-    <div className="fixed left-4 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center gap-3">
+    <div className="fixed left-4 top-1/2 -translate-y-1/2 z-40 hidden min-[1320px]:flex flex-col items-center gap-3">
       {snsLinks.map((link) => (
         <div key={link.label} className="relative flex items-center">
           <a

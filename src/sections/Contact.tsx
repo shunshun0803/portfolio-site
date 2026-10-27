@@ -4,6 +4,7 @@ import { GlassCard } from '../components/GlassCard';
 import { socialLinks } from '../data/links';
 
 const emailLink = socialLinks.find((l) => l.href.startsWith('mailto'))!;
+const snsLinks = socialLinks.filter((l) => l !== emailLink);
 
 export function Contact() {
   const { ref, isVisible } = useIntersectionObserver();
@@ -36,6 +37,22 @@ export function Contact() {
               </div>
               <span className="ml-4 text-sm">↗</span>
             </a>
+
+            <div className="flex flex-wrap justify-center gap-3 mt-8">
+              {snsLinks.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pixel-btn inline-flex items-center gap-2 px-3 py-2 text-[#FFD200]"
+                  style={{ background: 'var(--panel)', borderColor: 'var(--yellow)' }}
+                >
+                  <span>{link.icon}</span>
+                  <span className="font-pixel text-[8px]">{link.label}</span>
+                </a>
+              ))}
+            </div>
           </GlassCard>
 
           {/* Footer */}
