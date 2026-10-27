@@ -40,12 +40,22 @@ export function About() {
                 正しく動作するだけでなく、操作していて気持ちいいと感じられる、表現力豊かでレスポンシブなゲーム体験の構築を目指しています。
               </p>
 
+              {/* Motivation */}
+              <div className="p-4" style={{ border: '2px dashed var(--orange)', background: 'rgba(255,122,24,0.06)' }}>
+                <div className="font-pixel text-[9px] text-[#FF7A18] mb-2">▶ MOTIVATION</div>
+                <p className="font-dot text-[#F5F1E0] leading-relaxed text-sm">
+                  ゲーム開発に大きなやりがいを感じています。将来は
+                  <span className="text-[#FFD200] font-bold">ゲーム会社</span>
+                  で、ゲームクライアントエンジニアとして働きたいと考えています。
+                </p>
+              </div>
+
               {/* HUD-style status window */}
               <GlassCard accent="yellow" lift={false} className="p-4 mt-6">
                 <div className="space-y-2.5 text-xs">
                   {[
                     { key: 'NAME', val: '伊藤 俊生' },
-                    { key: 'SCHOOL', val: '会津大学大学院 修士1年（学部3年次から飛び級進学）' },
+                    { key: 'SCHOOL', val: '会津大学大学院 修士1年' },
                     { key: 'GRADUATION', val: '2028年3月修了予定（28卒）' },
                     { key: 'TARGET', val: 'ゲームクライアントエンジニア' },
                     { key: 'FOCUS', val: 'ゲームプレイ・AI・アニメーション・サウンド・グラフィックス' },
