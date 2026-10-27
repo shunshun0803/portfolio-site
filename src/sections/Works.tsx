@@ -87,11 +87,11 @@ export function Works() {
             style={{ border: '2px dashed var(--orange)', background: 'rgba(255,122,24,0.06)' }}
           >
             <div className="flex items-center gap-2 mb-3">
-              <span className="font-pixel text-[9px] text-[#FF7A18]">生成AIの利用について</span>
+              <span className="font-dot font-bold text-xs text-[#FF7A18]">生成AIの利用について</span>
               <div className="h-1 flex-1" style={{ background: 'rgba(255,122,24,0.2)' }} />
             </div>
             <p className="font-dot text-[#B7B29A] text-xs leading-relaxed mb-3">
-              掲載作品の開発では、Claude Code（Anthropic社の生成AIツール）を次の用途で利用しています。
+              掲載作品の開発では、Claude Code（Anthropic）や Codex（OpenAI）などの生成AIツールを次の用途で利用しています。
             </p>
             <ul className="font-dot text-[#B7B29A] text-xs leading-relaxed mb-3 grid sm:grid-cols-2 gap-x-6 gap-y-1">
               {aiUsages.map((u) => (

@@ -8,7 +8,6 @@ const stats = [
   // ARCHEIA・ShiroFlip などは含めていないので下限値
   { value: '1,200h+', label: 'DEV TIME', note: '累計開発時間' },
   { value: `${playableCount}`, label: 'PLAYABLE', note: 'ブラウザで遊べる作品' },
-  { value: '282', label: 'UNIT TESTS', note: 'ARCHEIAの単体テスト' },
 ];
 
 interface HeroProps {
@@ -54,8 +53,8 @@ export function Hero({ onStartBoss }: HeroProps) {
             </div>
 
             <p className="font-dot text-[#B7B29A] text-sm md:text-base leading-relaxed max-w-md mx-auto md:mx-0 mb-8">
-              Unity・C#・アニメーション・AI・サウンドを活用したインタラクティブなゲームシステムを開発しています。
-              応答性の高いゲームプレイ体験と、表現力豊かなリアルタイムインタラクションの実現に取り組んでいます。
+              Unity・C# で、触って気持ちいいゲームを作っています。
+              3Dアクションの操作感づくりを軸に、強化学習によるボスAIや、DI・R3 を使った変更に強い設計にも取り組んでいます。
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start flex-wrap">

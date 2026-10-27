@@ -11,6 +11,22 @@ export interface TimelineEvent {
  */
 export const timeline: TimelineEvent[] = [
   {
+    date: '2026.10〜11',
+    title: 'スクウェア・エニックス 生成AIを組み込んだ新規ゲーム開発ハッカソン（3日間）参加予定',
+    detail: '10月31日〜11月2日。3人チームでオリジナルゲームを開発するハッカソン型インターン',
+    highlight: true,
+  },
+  {
+    date: '2026.09',
+    title: 'ゲームフリーク ビルド効率化インターン（3日間）参加',
+    highlight: true,
+  },
+  {
+    date: '2026.09',
+    title: 'コロプラ 1day インターンシップ 参加',
+    highlight: true,
+  },
+  {
     date: '2026.09〜',
     title: '3Dアクション「ARCHEIA」制作開始',
     detail: '無双×ソウルライク。第1〜2章プレイ可能・単体テスト282件',
@@ -19,6 +35,11 @@ export const timeline: TimelineEvent[] = [
     date: '2026.08',
     title: 'サイバーエージェント プロトスプリントリーグ 参加',
     detail: '3人チームで2日間開発。進行管理と各メンバーの実装の統合を担当',
+    highlight: true,
+  },
+  {
+    date: '2026.08',
+    title: 'Cygames 1day ワークショップ 参加',
     highlight: true,
   },
   {

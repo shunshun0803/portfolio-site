@@ -59,7 +59,7 @@ export function About() {
                     { key: 'GRADUATION', val: '2028年3月修了予定（28卒）' },
                     { key: 'TARGET', val: 'ゲームクライアントエンジニア' },
                     { key: 'FOCUS', val: 'ゲームプレイ・AI・アニメーション・サウンド・グラフィックス' },
-                    { key: 'TECH', val: 'Unity (C#)・Go・Java・Python・Blender・HLSL' },
+                    { key: 'TECH', val: 'Unity (C#)・C++・Go・Java・Python・Blender・HLSL' },
                   ].map((row) => (
                     <div key={row.key} className="flex gap-3">
                       <span className="font-pixel text-[8px] text-[#FFD200] w-24 shrink-0 pt-0.5">{row.key}</span>
