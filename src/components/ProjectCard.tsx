@@ -110,6 +110,16 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
           </span>
 
           <div className="flex gap-4 ml-auto">
+            {project.githubUrl ? (
+              <a
+                href={project.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-pixel text-[9px] text-[#B7B29A] hover:text-[#FFD200] transition-colors duration-200 flex items-center gap-1"
+              >
+                <span>GITHUB</span><span>↗</span>
+              </a>
+            ) : null}
             {project.demoUrl ? (
               <a
                 href={project.demoUrl}
