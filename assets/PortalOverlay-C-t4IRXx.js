@@ -1,0 +1,8 @@
+import{a as e,n as t,t as n}from"./jsx-runtime-m7G7yzlP.js";var r=e(t(),1),i=n();function a({onComplete:e}){return(0,r.useEffect)(()=>{let t=setTimeout(e,2500);return()=>clearTimeout(t)},[e]),(0,i.jsxs)(`div`,{className:`fixed inset-0 z-50 flex items-center justify-center overflow-hidden`,style:{background:`rgba(5,5,12,0.97)`,animation:`portalFadeIn 0.4s steps(2)`},children:[(0,i.jsx)(`div`,{className:`absolute inset-0 flex items-center justify-center pointer-events-none`,children:[0,.6,1.2].map(e=>(0,i.jsx)(`div`,{className:`absolute`,style:{width:200,height:200,border:`4px solid #FFD200`,animation:`ringExpand 2.5s steps(12) ${e}s infinite`}},e))}),(0,i.jsxs)(`div`,{className:`text-center relative z-10`,children:[(0,i.jsx)(`div`,{className:`font-pixel text-2xl md:text-4xl mb-4 text-glow-yellow`,style:{color:`#FFD200`,animation:`portalPulse 0.4s steps(1) infinite alternate`},children:`PORTAL OPEN`}),(0,i.jsx)(`div`,{className:`font-pixel text-[10px] text-[#FF7A18] tracking-[0.3em]`,style:{animation:`portalPulse 0.6s steps(1) infinite alternate`},children:`制作物宇宙へ転送中...`})]}),(0,i.jsx)(`style`,{children:`
+        @keyframes portalFadeIn { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes portalPulse  { from { opacity: 0.5 } to { opacity: 1 } }
+        @keyframes ringExpand {
+          0%   { transform: scale(0.3); opacity: 0.9; }
+          100% { transform: scale(5);   opacity: 0; }
+        }
+      `})]})}export{a as PortalOverlay};
