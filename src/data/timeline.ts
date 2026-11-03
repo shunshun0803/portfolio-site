@@ -12,7 +12,7 @@ export interface TimelineEvent {
 export const timeline: TimelineEvent[] = [
   {
     date: '2026.10〜11',
-    title: 'スクウェア・エニックス 生成AIを組み込んだ新規ゲーム開発ハッカソン（3日間）参加予定',
+    title: 'スクウェア・エニックス 生成AIを組み込んだ新規ゲーム開発ハッカソン（3日間）参加',
     detail: '10月31日〜11月2日。3人チームでオリジナルゲームを開発するハッカソン型インターン',
     highlight: true,
   },
