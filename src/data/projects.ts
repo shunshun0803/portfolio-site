@@ -9,8 +9,10 @@ import logicartaImg from './thumbnails/logicarta.png'
 import zombieShooterImg from './thumbnails/zombieShooter.jpg'
 import ShiroFlipImg from './thumbnails/ShiroFlipImg.jpg'
 import EggIncubatorImg from './thumbnails/AppIcon.png'
-import archeiaHordeImg from './thumbnails/archeia/01_horde_slash.webp'
-import archeiaSurroundedImg from './thumbnails/archeia/02_surrounded.webp'
+import archeiaHordeImg from './thumbnails/archeia/cur_01_horde.webp'
+import archeiaPerkImg from './thumbnails/archeia/cur_02_perk_selection.webp'
+import archeiaFrostImg from './thumbnails/archeia/cur_03_frost_ex.webp'
+import archeiaLastRitesImg from './thumbnails/archeia/cur_04_last_rites.webp'
 import archeiaCrabImg from './thumbnails/archeia/03_boss_crab.webp'
 import archeiaSnakeImg from './thumbnails/archeia/04_boss_snake.webp'
 import archeiaFrogImg from './thumbnails/archeia/05_boss_frog.webp'
@@ -30,7 +32,17 @@ export interface FeaturedDetail {
   team: string;     // 体制（例: '個人' / '4人チーム'）
   role: string;     // 自分の担当範囲
   points: CasePoint[];
-  outcome?: string; // 受賞・順位・評価・技術的な見どころなど全体の成果
+  outcome?: string | string[]; // 受賞・順位・評価・技術的な見どころなど全体の成果（配列なら箇条書き）
+  outcomeLabel?: string;       // outcome 欄の見出し（省略時は「★ RESULT」）
+}
+
+/** 代表作カードの上部に大きく出す成果物リンク（デモ動画・ビルド・ソースなど） */
+export interface DeliverableLink {
+  label: string;
+  href: string;
+  meta?: string;     // 長さ・形式・サイズなど（例: 'ZIP・約19 MB'）
+  note?: string;     // 一言の補足（例: '展開して ARCHEIA.exe を起動'）
+  primary?: boolean; // 主ボタンとして目立たせる
 }
 
 export interface Project {
@@ -42,8 +54,9 @@ export interface Project {
   demoUrl?: string;
   videoUrl?: string;
   thumbnail?: string;
-  gallery?: { src: string; caption: string }[]; // 代表作カードで切り替えて見せるスクリーンショット
-  extraVideos?: { label: string; url: string }[]; // videoUrl 以外の動画（代表作カードのみ表示）
+  gallery?: { src: string; caption: string; alt: string }[]; // 代表作カードで切り替えて見せるスクリーンショット
+  deliverables?: DeliverableLink[]; // 代表作カードの成果物リンク（この順で表示）
+  pastVideos?: { label: string; url: string }[]; // 過去バージョンの映像（代表作カードの補足欄に表示）
   period?: string;    // 通常カード用の制作期間（代表作は featured.period を使う）
   learning?: boolean; // チュートリアルを参考にした学習用の作品。Works の末尾に分けて表示する
   featured?: FeaturedDetail;
@@ -56,33 +69,98 @@ export const projects: Project[] = [
     title: 'ARCHEIA ─ The Ember Rite ─',
     thumbnail: archeiaHordeImg,
     gallery: [
-      { src: archeiaHordeImg, caption: '第4章：機械兵の群れをなぎ払う' },
-      { src: archeiaSurroundedImg, caption: '第2章：盾兵・剣兵に囲まれながら拠点を制圧する' },
-      { src: archeiaCrabImg, caption: '第2章ボス戦：剣閃で斬りかかる' },
-      { src: archeiaSnakeImg, caption: '第4章ボス「蛇神ナーガラジャ」へのとどめ演出' },
-      { src: archeiaFrogImg, caption: '第3章ボス「霧喰らいのバトラクス」登場' },
-      { src: archeiaFogImg, caption: '第3章：霧の湿地' },
-      { src: archeiaTempleImg, caption: '第4章：密林の寺院' },
+      {
+        src: archeiaHordeImg,
+        caption: '第1章：機械兵の群れを斬り払う',
+        alt: '夜の草原で、主人公が特殊攻撃「ラストフューリー」を放ち、拠点の周りに集まった機械兵の群れを斬り払っている戦闘画面',
+      },
+      {
+        src: archeiaPerkImg,
+        caption: '3枚から強化を選ぶ',
+        alt: 'レベルアップ時の「強化を選ぶ」画面。狂戦士「怒り」、残光「シャドウスラスト」、氷「永久凍土」の3枚のカードが並び、それぞれの効果が書かれている',
+      },
+      {
+        src: archeiaFrostImg,
+        caption: '氷ビルドの強化特殊攻撃「フロストブルーム」',
+        alt: '主人公が氷の強化特殊攻撃「フロストブルーム」を放ち、青い氷の弧と光の柱が機械兵を巻き込んでいる画面',
+      },
+      {
+        src: archeiaLastRitesImg,
+        caption: '古代機竜アルケイオンへのラストライツ',
+        alt: '赤い魔法陣の上で、遺跡の番人「古代機竜アルケイオン」にとどめの「LAST RITES」を決めた瞬間の画面',
+      },
+      {
+        src: archeiaCrabImg,
+        caption: '第2章：カニ型の番人とのボス戦',
+        alt: '赤い円形の闘技場で、主人公が剣閃をまとった斬撃でカニ型の機械のボスに斬りかかっている画面',
+      },
+      {
+        src: archeiaFrogImg,
+        caption: '第3章：霧の湿地の番人「霧喰らいのバトラクス」',
+        alt: '赤い霧に包まれた湿地で、塔の前に現れたカエル型の機械のボス「霧喰らいのバトラクス」と主人公が向き合う画面',
+      },
+      {
+        src: archeiaFogImg,
+        caption: '第3章：霧の湿地の祠',
+        alt: '灰色の霧に包まれた湿地で、主人公が青く光る石の祠の前に立っている画面',
+      },
+      {
+        src: archeiaSnakeImg,
+        caption: '第4章：密林の寺院の番人「蛇神ナーガラジャ」',
+        alt: '夜の草原で、主人公が巨大な蛇型の機械のボス「蛇神ナーガラジャ」にとどめを決め、「LAST RITES」の文字が出ている画面',
+      },
+      {
+        src: archeiaTempleImg,
+        caption: '第4章：密林の寺院',
+        alt: '密林に囲まれた石造りの寺院を上空から見下ろした景色',
+      },
     ],
-    videoUrl: 'https://youtu.be/YeUKxFf2Q2c',
-    extraVideos: [{ label: 'ACTION DEMO', url: 'https://youtu.be/8I0dVK6sgcQ' }],
+    deliverables: [
+      {
+        label: 'デモ動画を見る',
+        meta: '2分13秒',
+        href: 'https://drive.google.com/file/d/16E1yYJWBQSAUaCWRxUOEnbi6rkexxume/view',
+        primary: true,
+      },
+      {
+        label: 'Windows版を入手',
+        meta: 'ZIP・約755 MB',
+        note: '展開して ARCHEIA.exe を起動',
+        href: 'https://drive.google.com/file/d/1fkuYSKp_WtX2spuDDdiYyjdlKhlk4bMm/view',
+      },
+      {
+        label: 'ソースコードを見る',
+        meta: 'ZIP・約19 MB',
+        note: 'コード閲覧用。外部素材は同梱していません',
+        href: 'https://drive.google.com/file/d/1bA8GBBM-CZhmeyL5BUFbopdfgcx4S7vY/view',
+      },
+    ],
+    pastVideos: [
+      { label: '旧版プレイデモ', url: 'https://youtu.be/YeUKxFf2Q2c' },
+      { label: '旧版アクションデモ', url: 'https://youtu.be/8I0dVK6sgcQ' },
+    ],
     description:
-      '古代文明の遺跡を守る機械の番人が赤い光に侵されて狂い、古代の灯火を継ぐ少女「灯守（ひもり）」が各地の光の源を祓っていく3Dアクションゲームです（制作中）。無双シリーズの爽快感とソウルライクの手応えの掛け合わせを狙い、全6章予定のうち第1〜4章がプレイ可能（第4章は調整中）で、タイトル画面・オープニングムービー・拠点の祠も実装済みです。2系統コンボ・派生攻撃・空中コンボ・ジャストガードからの致命の反撃・無双乱舞・ロックオン、機械兵の群れと拠点制圧、中ボス・章ボス、潮位や鏡を使った謎解き、水門の防衛戦を実装しています。キャラクター・モーション・環境・音は購入／配布素材を使用しています。',
+      '『ARCHEIA — The Ember Rite』は、群れを一気に斬り払う爽快感と、ボスの攻撃を読んで反撃する緊張感を組み合わせた、個人制作の3Dアクションゲームです。灯守の少女となり、赤い光に侵された機械の番人に挑みます。草原から密林の寺院まで第1〜4章がプレイ可能です。△の短押しと長押しで特殊攻撃を使い分け、章ごとの強化で天空・残光・氷・灯の精・狂戦士の5系統のビルドを組めます。キャラクター・モーション・環境・音は購入／配布素材を使用しています。',
     tech: ['Unity 6', 'URP', 'C#', 'VContainer', 'R3', 'UniTask', 'RenderGraph'],
     featured: {
       period: '2026年9月〜（制作中）',
       team: '個人（AIコーディングツールと分担）',
-      role: '方向性・世界観・章構成の決定、素材選定、試遊に基づく改善判断と数値調整。実装は主人公のAnimator・Cinemachineのカメラ・共通部品パッケージを担当。C#・シェーダーの大部分はClaude Codeに任せ、設計ルール（MVP・DI・テスト・コメント方針）はCLAUDE.mdに自分で明文化',
+      role: 'ゲームの企画、戦闘システムの設計、実装方針の決定を担当しました。主人公のAnimator ControllerとCinemachineのロックオンカメラを自分で組み、主人公・雑魚・ボスの行動状態に応じたモーションの切り替えを試遊で確認し、調整しました。コード実装の多くにはClaude Codeを活用し、コードレビューとテストプレイを通じて、攻撃のタイミングやボスの予備動作の読みやすさを改善しました。',
       points: [
+        {
+          challenge: '攻撃モーションの再生速度を変えると、固定秒数で管理していた当たり判定やコンボ受付が、モーションの進み具合とずれる。',
+          approach: '主人公の攻撃は、Animatorの正規化再生時間を参照して、当たり判定を有効にする区間とコンボ入力の受付区間を制御するようにした',
+          result: '判定と入力受付がモーションの進み具合に揃い、再生速度を変えても再調整が不要に',
+        },
+        {
+          challenge: 'ボスの技の選び方と、各技の予備動作や攻撃後の隙を、それぞれ調整できるようにしたい。',
+          approach: '技を選ぶ処理はビヘイビアツリーに持たせ、選んだ技の予備動作・攻撃・隙は別の状態遷移で管理した。',
+          result: '技を出す条件と、予備動作や攻撃後の隙の長さを、それぞれ調整できるようになった。',
+        },
         {
           challenge: '剣閃がカーブで反転する',
           approach: 'カメラに板を向ける方式に補正を重ねるのをやめ、刃が通過した面をそのまま形状にする方式に切り替えた',
           result: '急な軌道でも破綻しなくなった。直らないときは方式ごと変える判断が必要だと学んだ',
-        },
-        {
-          challenge: '攻撃後に棒立ちのまま滑る',
-          approach: 'コンボ遷移を固定秒数で予測していたのをやめ、アニメーションの実進捗に同期させた',
-          result: '再生速度を変えても再調整が不要に',
         },
         {
           challenge: '試遊で「近接攻撃が当たらない」という感想',
@@ -94,7 +172,11 @@ export const projects: Project[] = [
           approach: '撃破ノルマを拠点制圧に変え、撃破報酬での成長要素を追加。2章には水門防衛戦と潜り兵を新しく作った',
         },
       ],
-      outcome: '単体テスト282件（ゲームルールをUnity非依存のC#層に分離） / RenderGraphによる自作ポストエフェクト / 草 約70万本をGPUインスタンシングで描画',
+      outcomeLabel: '設計・共通部品',
+      outcome: [
+        '戦闘や進行のルールをUnityのコンポーネントから分離し、EditModeテストで検証',
+        'ボタンの連打・二重実行の防止と、画面を破棄するときのイベント購読解除を共通パッケージ化',
+      ],
     },
   },
   {
